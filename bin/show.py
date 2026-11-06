@@ -35,16 +35,40 @@ def drawing(name):
     return scored[0][1] if scored and scored[0][0] else None
 
 
-def with_drawings(items, key):
-    """Gives each item a drawing found by its name, unless it has one ("as much as possible", Ian, 2026-11-06)."""
+class Raw(str):
+    """Code written as is, like a glyph, inside a preset's data."""
+
+
+def jsx(x):
+    """Data as code, with glyphs written as code rather than as strings."""
+    if isinstance(x, Raw):
+        return str(x)
+    if isinstance(x, dict):
+        return "{ " + ", ".join(f"{js(k)}: {jsx(v)}" for k, v in x.items()) + " }"
+    if isinstance(x, (list, tuple)):
+        return "[" + ", ".join(jsx(v) for v in x) + "]"
+    return js(x)
+
+
+def glyph_row(part, text):
+    """A drawing and its words side by side: everything is a glyph (Ian, 2026-11-06)."""
+    return Raw(f"Row(Part({js(part)}, {{ size: 's' }}), Text({js(text)}, {{ size: 'caption' }}))")
+
+
+def with_drawings(items, key, whole=False):
+    """Each item's words with a drawing found by its name, or the one it names with "part", as a glyph. whole: the
+    item itself becomes the glyph (a stack layer); otherwise its words do (a point, a step, a bar's label)."""
     out = []
     for it in items:
+        if isinstance(it, (list, tuple)):
+            raise ValueError(f"each item should be a word or an object like {{{key!r}: ..., ...}}, and got {it!r}")
         it = {key: it} if isinstance(it, str) else dict(it)
-        if "part" not in it:
-            found = drawing(str(it.get(key, "")))
-            if found:
-                it["part"] = found
-        out.append(it)
+        part = it.pop("part", None) or drawing(str(it.get(key, "")))
+        if part and isinstance(it.get(key), str):
+            row = glyph_row(part, it[key])
+            out.append(row if whole and set(it) <= {key} else {**it, key: row})
+        else:
+            out.append(it[key] if whole and set(it) <= {key} else it)
     return out
 
 
@@ -70,22 +94,29 @@ def flow(show):
 
 
 def side(sd):
-    """A compare side with a drawing for its title and for each point, found by their words where there is one."""
+    """A compare side with a drawing over its title, and each point a drawing and its words, where there's a drawing."""
     sd = dict(sd)
     if "part" not in sd and drawing(str(sd.get("title", ""))):
         sd["part"] = drawing(str(sd["title"]))
-    sd["points"] = with_drawings(sd.get("points", []), "text")
+    sd["points"] = [p["text"] if isinstance(p, dict) and isinstance(p.get("text"), Raw) else p for p in with_drawings(sd.get("points", []), "text")]
     return sd
+
+
+def bars(items):
+    for b in items:
+        if not isinstance(b, dict) or "label" not in b or "value" not in b:
+            raise ValueError(f"each bar is {{\"label\": ..., \"value\": ...}}, and got {b!r}")
+    return with_drawings(items, "label")
 
 
 PRESETS = {
     "flow": flow,
     "row": lambda s: f"slide(Row({', '.join(things(s))}))",
     "cycle": lambda s: f"slide(Cycle([{', '.join(things(s))}]))",
-    "compare": lambda s: f"slide(Compare({js(side(s['left']))}, {js(side(s['right']))}))",
-    "stack": lambda s: f"slide(Stack({js(with_drawings(s['layers'], 'label'))}{', { nest: true }' if s.get('nest') else ''}))",
-    "timeline": lambda s: f"slide(Timeline({js(with_drawings(s['steps'], 'what'))}{', { down: true }' if s.get('down') else ''}))",
-    "bars": lambda s: f"slide(Bars({js(with_drawings(s['bars'], 'label'))}))",
+    "compare": lambda s: f"slide(Compare({jsx(side(s['left']))}, {jsx(side(s['right']))}))",
+    "stack": lambda s: f"slide(Stack({jsx(with_drawings(s['layers'], 'label', whole=True))}{', { nest: true }' if s.get('nest') else ''}))",
+    "timeline": lambda s: f"slide(Timeline({jsx(with_drawings(s['steps'], 'what'))}{', { down: true }' if s.get('down') else ''}))",
+    "bars": lambda s: f"slide(Bars({jsx(bars(s['bars']))}))",
     "code": lambda s: f"slide(Code({js(s['code'])}, {js({k: s[k] for k in ('lang', 'link', 'caption') if k in s})}))",
     "terminal": lambda s: f"slide(Terminal({js(s['lines'])}))",
     "stat": lambda s: f"slide(Stat({js(s['value'])}, {js(s.get('label', ''))}, {js({k: s[k] for k in ('suffix', 'prefix', 'color') if k in s})}))",
