@@ -1,0 +1,19 @@
+<div id="d" class="diagram" style="left:200px;top:190px;width:1520px;height:730px">
+sequenceDiagram
+  participant P as Player
+  participant W as Watcher
+  participant A as Agent
+  P->>W: question saved
+  W->>A: wake up
+  A->>P: answer ready
+</div>
+<script>
+scene(({ at, K }) => {
+  K.diagram('#d', [
+    [at(0, 0.7), 'P', 'W', 'A'],
+    [at(1, 0.1), 'msg 0'],
+    [at(2, 0.1), 'msg 1'],
+    [at(3, 0.1), 'msg 2'],
+  ]);
+});
+</script>

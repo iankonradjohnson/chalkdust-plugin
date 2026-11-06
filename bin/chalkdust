@@ -1,0 +1,243 @@
+#!/usr/bin/env python3
+"""The hosted version's command, for the agent on the customer's machine. Standard library only.
+
+  chalkdust login [--server URL]              save the key from your purchase, which it asks for without showing it
+  chalkdust publish <folder>                  upload scenes, wait for the build, print the links, warnings and stills
+  chalkdust parts <words>                     search our drawings, to use with data-part="name" in a scene
+  chalkdust watch <folder>                    block until a question arrives, print it, exit (run in the background; also exits if nobody's watching)
+  chalkdust answer <folder> <question>        upload <folder>/answers/<question>/, wait for the build, print stills
+  chalkdust release <folder> <question>       show that answer in the player, once its stills look right
+  chalkdust note <folder> <question> "text"   leave a one-line reply instead of an answer
+  chalkdust comments <folder>                 print every comment left on the video, with its moment
+  chalkdust delete <folder> --yes             permanently delete the video and everything about it from the service
+
+<folder> holds scenes.json, scenes/<id>.html and, optionally, assets/, the same as a local project.
+The video's id is saved in <folder>/.chalkdust.json, so publishing again updates the same video and link.
+"""
+import argparse, base64, getpass, json, os, shutil, socket, sys, time, urllib.error, urllib.request, webbrowser
+
+CONFIG = os.environ.get("CHALKDUST_CONFIG") or os.path.expanduser("~/.config/chalkdust/config.json")
+DEFAULT_SERVER = "https://getchalkdust.com"
+PARTS = {  "person": "person user human customer developer engineer viewer",  "robot": "robot agent ai claude model bot assistant",  "laptop": "laptop computer developer machine local notebook",  "phone": "phone mobile device smartphone app",  "server": "server rack backend datacenter host machine",  "database": "database storage data table records sql postgres cylinder",  "cloud": "cloud hosted internet service sky online",  "browser": "browser window webpage website screen app page",  "document": "document file page report paper text note",  "folder": "folder directory project files repo",  "envelope": "envelope email mail message letter send notification",  "book": "book reading library learn documentation history manual",  "lightbulb": "lightbulb idea insight thought think bright",  "shield": "shield security safe protect sandbox privacy",  "magnifier": "magnifier search zoom inspect find look",  "gear": "gear settings process engine mechanism machine",  "sun": "sun morning day bright sky weather",  "moon": "moon night sky dark",  "mountains": "mountains landscape scenery background hills nature range",  "waves": "waves sea ocean water tide background",  "tree": "tree nature forest plant growth",  "ship": "ship sailing boat sailor voyage sea",  "trophy": "trophy winner goal result success award",  "stopwatch": "stopwatch timer time speed fast measure clock",  "chart": "chart graph bars results data statistics growth",  "queue": "queue messages conveyor jobs backlog pipeline waiting async kafka",  "function": "function machine input output lambda transform compute serverless",  "chip": "chip cpu processor hardware silicon gpu compute microchip",  "load-balancer": "load balancer traffic distribute servers scaling routing proxy requests",  "cache": "cache fast memory redis speed storage lightning quick",  "terminal": "terminal shell console command line cli bash prompt",  "log-list": "log logs list clipboard checklist events audit errors status",  "package": "package box parcel dependency npm module library shipping release",  "key": "key secret credential api key access password unlock",  "token": "token coin access auth jwt credit session llm",  "layers": "layers stack levels architecture tiers overlap sheets",  "login": "login sign in form authentication password account user session",  "plug": "plug power connect electric plugin cable integration socket",  "git-branch": "git branch version control fork commit feature source",  "hard-drive": "hard drive disk storage hdd hardware data platter",  "flask": "flask experiment test lab science beaker chemistry trial",  "wifi": "wifi wireless router signal internet connection network",  "git-merge": "git merge pull request version control combine commit join",  "padlock": "padlock lock locked secure security private encrypted protected",  "code-file": "code file source script program developer html",  "unlocked": "unlocked open padlock unlock access insecure public decrypted",  "network": "network computers connected lan hub internet nodes topology",  "api": "api endpoint request response integration rest service interface",  "bug": "bug insect ladybug error defect debug issue glitch",  "braces": "braces curly brackets json code object syntax block",  "webhook": "webhook hook event callback notification message trigger",  "target": "target bullseye goal aim dart focus objective accuracy",  "sparkle": "sparkle magic new shine ai glitter special",  "microphone": "microphone mic voice record speak podcast audio narration",  "question": "question ask help unknown why faq speech bubble",  "download": "download save arrow down import get receive inbox",  "big-arrow": "big arrow right next direction forward point flow",  "scales": "scales balance justice compare weigh law fair tradeoff",  "bell": "bell notification alert ring reminder alarm",  "flag": "flag milestone goal mark country finish banner report",  "check": "check tick yes correct approved done success right pass",  "warning": "warning caution alert danger attention risk hazard triangle",  "refresh": "refresh reload loop cycle repeat update sync retry",  "raised-hand": "raised hand palm stop volunteer wave high five person",  "play": "play start video watch begin button run",  "picture": "picture image photo photograph frame painting landscape gallery",  "speaker": "speaker sound volume audio loud announce megaphone",  "star": "star favorite rating best quality award highlight",  "wrench": "wrench tool fix repair spanner maintenance settings",  "hammer": "hammer tool build construct fix nail",  "pencil": "pencil write draw edit sketch note",  "eye": "eye see look watch view vision visible observe",  "map-pin": "map pin location place marker address where geography",  "stop-sign": "stop sign halt forbidden blocked no entry road end",  "cross": "cross x no wrong rejected error fail cancel incorrect",  "upload": "upload send arrow up export publish share",  "pause": "pause wait hold break button stop",  "ear": "ear hear listen audio sound hearing",  "film": "film movie video strip cinema reel frames",  "megaphone": "megaphone announcement marketing loud bullhorn broadcast promote speaker shout",  "house": "house home building residence property real estate family",  "map": "map navigation route directions location pin travel journey folded",  "puzzle": "puzzle jigsaw pieces fit solve integration plugin problem game",  "lighthouse": "lighthouse beacon coast guide signal shore light harbor",  "store": "store shop retail storefront market business awning merchant",  "cart": "cart shopping trolley buy checkout ecommerce basket order groceries",  "magnet": "magnet attract attraction pull magnetic force retention horseshoe",  "teacher": "teacher instructor professor lesson classroom chalkboard school tutor education",  "battery": "battery power energy charge charging level electric",  "factory": "factory plant manufacturing industry production smokestack chimney pollution",  "team": "team group people colleagues staff crew coworkers employees together",  "fish": "fish ocean sea animal swimming aquarium goldfish marine",  "coins": "coins money cash payment price savings gold stack finance cost",  "gem": "gem diamond jewel crystal precious value premium treasure sapphire",  "graduation-cap": "graduation cap mortarboard degree diploma college university education graduate",  "anchor": "anchor boat nautical harbor port stability sea sailor dock",  "compass": "compass direction navigation guide north bearing explore orientation",  "credit-card": "credit card debit payment billing checkout bank pay plastic",  "gift": "gift present box reward birthday bonus surprise ribbon",  "speech-bubble": "speech bubble chat talk message conversation comment dialogue typing",  "rain-cloud": "rain cloud weather storm drops shower wet forecast",  "globe": "globe world earth planet international global map geography",  "rocket": "rocket launch startup space spaceship growth fast ship",  "flame": "flame fire hot burn heat trending campfire energy",  "developer": "developer programmer engineer coder coding software headphones laptop hacker",  "student": "student learner pupil backpack reading school study kid education",  "link": "link chain url hyperlink connect reference join",  "brain": "brain mind think thinking ai intelligence memory idea",  "zap": "zap lightning bolt fast speed power energy electric instant",  "hourglass": "hourglass time waiting wait timeout deadline sand slow",  "calendar": "calendar date day schedule month deadline event plan",  "camera": "camera photo picture screenshot capture snapshot record",  "heart": "heart love like favorite health care",  "thumbs-up": "thumbs up like approve yes good agree vote",  "thumbs-down": "thumbs down dislike reject no bad disagree",  "trash": "trash delete bin remove garbage discard waste",  "plane": "plane airplane flight travel ship deploy fly",  "archive": "archive box storage old backup store keep",  "wallet": "wallet money pay payment cash funds budget",  "container": "container docker shipping box image deploy",  "palette": "palette color colors paint design theme brand style",  "loop": "loop repeat cycle sync refresh again retry iterate",  "cookie": "cookie session browser tracking snack",  "dashboard": "dashboard metrics analytics overview monitor panel stats",  "captions": "captions subtitles transcript video text accessibility",  "dollar": "dollar money price cost revenue pay coin cash",  "diagram": "diagram flowchart tree hierarchy structure org chart architecture",  "door": "door entry exit enter leave room access",  "bridge": "bridge connect span cross gap link between",  "receipt": "receipt bill invoice purchase order total payment",  "tag": "tag label price category version release",  "ticket": "ticket pass admission event issue support",  "bank": "bank finance institution building money government court",  "atom": "atom science physics react molecule small",  "presentation": "presentation slides deck talk pitch chart board",  "radar": "radar scan detect monitor search find nearby",  "type": "type text font typography letters words write",  "shapes": "shapes geometry design elements triangle circle square",  "hash": "hash number tag channel id pound hashtag",  "gauge": "gauge speed meter performance level score measure",  "timeline": "timeline history sequence steps milestones progress events",  "clipboard": "clipboard copy paste checklist task form done list",  "headset": "headset support help call service audio listen",  "newspaper": "newspaper news article blog post press story",  "quote": "quote quotation said saying testimonial citation",  "undo": "undo back revert reverse rollback return",  "scissors": "scissors cut split trim divide snip",  "toggle": "toggle switch on off setting flag option enable",  "siren": "siren alarm alert emergency incident urgent outage",  "bird": "bird tweet fly nature animal light",  "keyboard": "keyboard type typing input keys shortcut",  "mouse": "mouse click pointer input device",  "monitor": "monitor screen desktop display computer",  "tablet": "tablet ipad device touch app",  "watch": "watch smartwatch wearable wrist time",  "printer": "printer print paper office output",  "router": "router wifi network modem internet home",  "satellite": "satellite orbit space signal broadcast gps",  "usb": "usb stick drive plug storage device",  "power": "power on off button start shutdown",  "memory": "memory ram chip hardware cache stick",  "floppy": "floppy save disk storage",  "plus": "plus add new more create badge",  "pdf-file": "pdf file document report export",  "image-file": "image file photo upload picture png",  "zip-file": "zip file archive compress bundle",  "variable": "variable value code x parameter",  "regex": "regex pattern match search expression",  "pull-request": "pull request pr review merge code branch",  "commit": "commit git change version save",  "issue": "issue bug ticket report github open",  "kanban": "kanban board tasks columns sprint project",  "form": "form input fields signup survey submit",  "slider": "slider settings adjust range control tune",  "cursor-click": "cursor click pointer select tap",  "window-tabs": "window tabs browser app page",  "dialog": "dialog modal popup confirm prompt",  "inbox": "inbox messages mail tray queue incoming",  "paper-plane": "paper plane send message submit deliver",  "video-call": "video call meeting zoom chat remote",  "music-note": "music note song audio sound",  "rss": "rss feed subscribe blog updates",  "alarm": "alarm clock wake reminder alert time",  "car": "car drive vehicle road travel",  "truck": "truck delivery shipping freight logistics",  "train": "train rail transit subway commute",  "office": "office building company business city",  "hospital": "hospital health medical care clinic",  "piggy-bank": "piggy bank savings money save budget",  "pie-chart": "pie chart share percent breakdown split",  "line-chart": "line chart graph trend growth metrics",  "trend-down": "trend down decline drop fall loss",  "funnel": "funnel filter conversion sales pipeline narrow",  "antenna": "antenna signal broadcast radio transmit" }   # The plugin build fills this in with the drawings on the service.
+
+
+class Unreachable(Exception):
+    pass
+
+
+def config():
+    if not os.path.exists(CONFIG):
+        path = os.path.abspath(sys.argv[0])
+        sys.exit(f"Not logged in. Run this: it opens the browser to connect, and prints a code to check:\n  {path} login")
+    return json.load(open(CONFIG))
+
+
+def api(method, route, body=None, raw=False, timeout=120):
+    cfg = config()
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(cfg["server"] + route, data=data, method=method, headers={"Authorization": "Bearer " + cfg["key"], "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            payload = r.read()
+    except urllib.error.HTTPError as e:
+        if e.code in (502, 503, 504):  # the proxy's answer while the service restarts: as temporary as a dropped connection
+            raise Unreachable(f"Can't reach {cfg['server']}: {e.code}")
+        detail = e.read().decode()[:500]
+        try:
+            detail = json.loads(detail).get("detail", detail)
+        except ValueError:
+            pass
+        sys.exit(f"{e.code}: {detail}")
+    except (urllib.error.URLError, socket.timeout, ConnectionError) as e:
+        raise Unreachable(f"Can't reach {cfg['server']}: {e}")
+    return payload if raw else json.loads(payload)
+
+
+def video_id(folder):
+    file = os.path.join(folder, ".chalkdust.json")
+    if not os.path.exists(file):
+        sys.exit(f"{folder} hasn't been published. Run: chalkdust publish {folder}")
+    return json.load(open(file))["id"]
+
+
+def read_sources(folder):
+    files = {}
+    if not os.path.exists(os.path.join(folder, "scenes.json")):
+        sys.exit(f"No scenes.json in {folder}")
+    for name in ["scenes.json"] + [f"{sub}/{f}" for sub in ("scenes", "assets") if os.path.isdir(os.path.join(folder, sub)) for f in sorted(os.listdir(os.path.join(folder, sub)))]:
+        if os.path.isfile(os.path.join(folder, name)) and not os.path.basename(name).startswith("."):
+            files[name] = base64.b64encode(open(os.path.join(folder, name), "rb").read()).decode()
+    return {"files": files}
+
+
+def wait_for_build(route):
+    while True:
+        try:
+            status = api("GET", route)
+        except Unreachable:  # the service restarting mid-build; it reports the build as failed once it's back
+            time.sleep(5)
+            continue
+        if status["state"] != "building":
+            break
+        time.sleep(2)
+    if status["state"] == "failed":
+        sys.exit("Build failed:\n" + status.get("error", ""))
+    return status
+
+
+def save_stills(status, stills_route, folder):
+    out = os.path.join(folder, ".chalkdust", "stills")
+    shutil.rmtree(out, ignore_errors=True)  # old sheets would look like results of this build
+    os.makedirs(out, exist_ok=True)
+    saved = []
+    for name in status.get("stills", []):
+        open(os.path.join(out, name), "wb").write(api("GET", f"{stills_route}/{name}", raw=True))
+        saved.append(os.path.join(out, name))
+    return saved
+
+
+def report(status, stills):
+    for warning in status.get("warnings", []):
+        print("warning:", warning)
+    if not status.get("warnings"):
+        print("warnings: none")
+    print(f"length: {status.get('duration', 0):.0f}s")
+    print("stills to check:", *stills, sep="\n  ") if stills else print("no stills")
+
+
+def browser_login(server):
+    """Connects this machine to a Chalkdust account in the browser. The key arrives by itself, and nobody sees or pastes it."""
+    def post(route, body=None):
+        req = urllib.request.Request(server + route, data=json.dumps(body or {}).encode(), method="POST", headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read())
+    start = post("/api/login/start")
+    print(f"Connect Chalkdust in your browser. Check it shows this code: {start['code']}")
+    print(f"If no tab opened, go to: {start['url']}")
+    webbrowser.open(start["url"])
+    deadline = time.time() + start.get("expires_in", 600)
+    while time.time() < deadline:
+        try:
+            status = post("/api/login/poll", {"poll": start["poll"]})
+        except urllib.error.HTTPError:
+            break
+        if status["status"] == "done":
+            return status["key"]
+        time.sleep(2)
+    sys.exit("That login expired before it was connected. Run chalkdust login again.")
+
+
+def cmd_login(args):
+    server = args.server.rstrip("/")
+    key = args.key or (getpass.getpass("Key: ").strip() if getattr(args, "paste", False) else browser_login(server))
+    if not key:
+        sys.exit("No key entered.")
+    os.makedirs(os.path.dirname(CONFIG), exist_ok=True)
+    fd = os.open(CONFIG, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        json.dump({"key": key, "server": args.server.rstrip("/")}, f)
+    print("Saved.")
+
+
+def cmd_publish(args):
+    config()
+    state_file = os.path.join(args.folder, ".chalkdust.json")
+    if os.path.exists(state_file):
+        state = json.load(open(state_file))
+        api("PUT", f"/api/videos/{state['id']}", read_sources(args.folder))
+    else:
+        state = api("POST", "/api/videos", read_sources(args.folder))
+        fd = os.open(state_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)  # holds the owner link
+        with os.fdopen(fd, "w") as f:
+            json.dump(state, f)
+    route = f"/api/videos/{state['id']}"
+    status = wait_for_build(route)
+    report(status, save_stills(status, route + "/stills", args.folder))
+    print("your link, which lets you ask questions:", state["owner_url"])
+    print("link to share, watch only:", state["watch_url"])
+
+
+def cmd_watch(args):
+    vid = video_id(args.folder)
+    started = time.time()
+    limit = float(os.environ.get("CHALKDUST_IDLE_MINUTES", 30)) * 60
+    while True:
+        try:
+            reply = api("GET", f"/api/videos/{vid}/questions/next?timeout=25", timeout=60)
+        except Unreachable:  # the service restarted or the network blinked: a watcher should outlast that
+            time.sleep(5)
+            continue
+        questions = reply["questions"]
+        if questions:
+            break
+        viewed = reply.get("viewed_seconds_ago")
+        if min(time.time() - started, viewed if viewed is not None else float("inf")) > limit:
+            print("Nobody has this video open, so the watcher stopped. Don't start it again unless the user comes back to it.")
+            return
+    for q in questions:
+        q["answer_folder"] = os.path.abspath(os.path.join(args.folder, "answers", q["id"]))
+        os.makedirs(os.path.join(q["answer_folder"], "scenes"), exist_ok=True)
+        print(json.dumps(q, indent=1))
+
+
+def cmd_comments(args):
+    print(json.dumps(api("GET", f"/api/videos/{video_id(args.folder)}/comments"), indent=1))
+
+
+def cmd_delete(args):
+    if not args.yes:
+        sys.exit("This permanently deletes the video, its comments and answers from the service, and its links stop working. Add --yes once the user has confirmed.")
+    api("DELETE", f"/api/videos/{video_id(args.folder)}")
+    os.remove(os.path.join(args.folder, ".chalkdust.json"))
+    print("Deleted. Your local files are untouched.")
+
+
+def cmd_answer(args):
+    vid = video_id(args.folder)
+    folder = os.path.join(args.folder, "answers", args.question)
+    api("POST", f"/api/videos/{vid}/questions/{args.question}/answer", read_sources(folder))
+    route = f"/api/videos/{vid}/questions/{args.question}"
+    status = wait_for_build(route + "/answer")
+    report(status, save_stills(status, route + "/stills", folder))
+    print(f"When the stills look right: chalkdust release {args.folder} {args.question}")
+
+
+def cmd_release(args):
+    api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/release", {})
+    print("Released.")
+
+
+def cmd_parts(args):
+    wanted = {word.lower() for word in args.words}
+    found = [(name, tags) for name, tags in PARTS.items() if wanted & set((name.replace("-", " ") + " " + tags).lower().split())]
+    for name, tags in found:
+        print(f"{name}: {tags}")
+    if not found:
+        print("Nothing for that. Use a plain shape, or write an inline <svg> in the scene.")
+
+
+def cmd_note(args):
+    api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/note", {"text": args.text})
+    print("Noted.")
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="chalkdust", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="command", required=True)
+    p = sub.add_parser("login"); p.add_argument("key", nargs="?"); p.add_argument("--server", default=DEFAULT_SERVER); p.add_argument("--paste", action="store_true", help="type a key instead of connecting in the browser"); p.set_defaults(fn=cmd_login)
+    for name, fn in (("publish", cmd_publish), ("watch", cmd_watch), ("comments", cmd_comments)):
+        p = sub.add_parser(name); p.add_argument("folder"); p.set_defaults(fn=fn)
+    for name, fn in (("answer", cmd_answer), ("release", cmd_release)):
+        p = sub.add_parser(name); p.add_argument("folder"); p.add_argument("question"); p.set_defaults(fn=fn)
+    p = sub.add_parser("parts"); p.add_argument("words", nargs="+"); p.set_defaults(fn=cmd_parts)
+    p = sub.add_parser("delete"); p.add_argument("folder"); p.add_argument("--yes", action="store_true"); p.set_defaults(fn=cmd_delete)
+    p = sub.add_parser("note"); p.add_argument("folder"); p.add_argument("question"); p.add_argument("text"); p.set_defaults(fn=cmd_note)
+    args = ap.parse_args()
+    try:
+        args.fn(args)
+    except Unreachable as e:
+        sys.exit(str(e))
+
+
+if __name__ == "__main__":
+    main()

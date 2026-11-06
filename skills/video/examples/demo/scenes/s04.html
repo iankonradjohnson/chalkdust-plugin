@@ -1,0 +1,16 @@
+<div id="d" class="diagram" data-look="handDrawn" style="left:200px;top:190px;width:1520px;height:730px">
+flowchart LR
+  V[Watch] --> H[Raise hand]
+  H --> A[Agent answers]
+  A --> V
+</div>
+<script>
+scene(({ at, K }) => {
+  K.diagram('#d', [
+    [at(1, 0.02), 'V'],
+    [at(1, 0.1), 'V>H', 'H'],
+    [at(1, 0.3), 'H>A', 'A'],
+    [at(1, 0.65), 'A>V'],
+  ]);
+});
+</script>

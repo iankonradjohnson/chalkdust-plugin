@@ -1,0 +1,16 @@
+{
+  "name": "chalkdust",
+  "owner": {
+    "name": "Ian Johnson"
+  },
+  "metadata": {
+    "description": "Chalkdust: Claude Code answers you can watch and interrupt: animated, narrated videos about your codebase, played at a link, where you can raise your hand and get a video answer."
+  },
+  "plugins": [
+    {
+      "name": "chalkdust",
+      "source": "./",
+      "description": "Chalkdust: Claude Code answers you can watch and interrupt: animated, narrated videos about your codebase, played at a link, where you can raise your hand and get a video answer."
+    }
+  ]
+}

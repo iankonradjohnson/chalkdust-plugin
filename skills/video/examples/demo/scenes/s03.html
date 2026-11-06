@@ -1,0 +1,23 @@
+<div id="d" class="diagram" style="left:200px;top:190px;width:1520px;height:730px">
+classDiagram
+  direction LR
+  class Project
+  class Scene
+  class Beat
+  class Comment
+  Project "1" --> "*" Scene
+  Scene "1" --> "*" Beat
+  Project "1" --> "*" Comment
+  Comment --> Project : answer
+</div>
+<script>
+scene(({ at, K }) => {
+  K.diagram('#d', [
+    [at(0, 0.1), 'Project'],
+    [at(0, 0.5), 'Project>Scene', 'Scene'],
+    [at(0, 0.75), 'Scene>Beat', 'Beat'],
+    [at(1, 0.1), 'Project>Comment', 'Comment'],
+    [at(1, 0.5), 'Comment>Project'],
+  ]);
+});
+</script>

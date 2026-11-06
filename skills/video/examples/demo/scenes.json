@@ -1,0 +1,20 @@
+[
+ {"id": "s01", "kicker": "What's new · 1", "title": "Real images, clickable links", "beats": [
+  {"say": "Scenes can now show real images. This is the player itself, in a screenshot."},
+  {"say": "And because nothing is rendered to a video file, links on the stage really work. Click this one, and the Mermaid docs open in a new tab, while the video pauses."}
+ ]},
+ {"id": "s02", "kicker": "What's new · 2", "title": "A question, as a sequence diagram", "beats": [
+  {"say": "Diagrams can now be real UML, and they build along with the narration. Here are the three parts involved in answering a question."},
+  {"say": "You ask a question in the player, and it's saved to the server."},
+  {"say": "The watcher picks it up, and wakes the agent."},
+  {"say": "The agent builds an answer, and the player plays it."}
+ ]},
+ {"id": "s03", "kicker": "What's new · 3", "title": "A class diagram that builds", "beats": [
+  {"say": "Class diagrams work too. A project has scenes, and each scene has beats."},
+  {"say": "A project also has comments, and a comment can have its own answer, which is another whole project. That's why answers can branch."}
+ ]},
+ {"id": "s04", "kicker": "What's new · 4", "title": "One hand-drawn scene", "beats": [
+  {"say": "And here's the hand-drawn test. It's the same kind of diagram, drawn with a sketched look."},
+  {"say": "You raise your hand, and the agent answers. If the answer raises another question, the loop goes around again."}
+ ]}
+]
