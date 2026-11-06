@@ -39,6 +39,7 @@ scene(({ K }) => K.say(`
 | Amounts and comparisons | `Bars` and `Stat`, `Line` for change over time (`trend: true` when the trend is the point), `count` |
 | Look at this exact thing | `light` or `mark`, as the last resort, and at most one or two per slide. In code, light the one word: `highlight: [{ word: 'retries', on: 'retries' }]` |
 
+- **Things come on as they're said.** A piece, a caption, a Compare point, a Timeline step, a Stack layer or a bar with no `.on` of its own comes on when the narration first says its own words, and a Flow, Tree or Cycle builds along its arrows to it. So name things in the narration in the order you want them to appear, and give `.on('word')` only when the word that should bring it on isn't one of its own. Don't put `.at(0.1)` on everything: the build warns when a label is on screen long before it's said.
 - **Every light ends.** A light goes out when the next thing on the slide lights, so only what's being talked about is lit. Give it its own end with `.light('word', { until: 'other' })`, or `unlight` in `K.say`; say `keep` (`{ keep: true }`, or `light #a keep`) only when it should stay on. Code highlights end the same way.
 - **Long code wraps** by itself, so paste real lines; keep a block short rather than shrinking it.
 
