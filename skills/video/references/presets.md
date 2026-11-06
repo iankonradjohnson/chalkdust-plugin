@@ -28,6 +28,12 @@ Generated from `brand/specimens` by `scripts/design_system.js`. The full list of
 | `p-scene` | Scene and Layer |
 | `p-light` | light, badge, Form |
 | `p-form` | Form, as a piece |
+| `p-line` | Line |
+| `p-timeline` | Timeline |
+| `p-tree` | Tree |
+| `p-stack` | Stack |
+| `p-compare` | Compare |
+| `p-cycle` | Cycle |
 
 ## `f-trace` · K.trace
 
@@ -249,5 +255,79 @@ Narration: "The app tries to delete files but only the network passes."
 ```html
 <script>
 slide(Form('barrier', { source: { label: 'App', icon: 'robot' }, wall: 'sandbox', rows: [{ on: 'delete', attempt: 'delete', target: 'Disk', why: 'files' }, { on: 'network', attempt: 'call', target: 'API', why: 'allowed', pass: true }] }))
+</script>
+```
+
+## `p-line` · Line
+
+Narration: "A line over time: neutral, with the launch marked in blue. Or all blue, when the trend is the point."
+
+```html
+<script>
+slide(Row(
+  Line([3, 4, 3.5, 5, 6.5, 9], { mark: { at: 4, label: 'launch', on: 'launch' } }),
+  Line([{ value: 300 }, { value: 420 }, { value: 380 }, { value: 640 }, { value: 900 }, { value: 1200, text: '1,200' }], { trend: true }).on('trend')
+))
+</script>
+```
+
+## `p-timeline` · Timeline
+
+Narration: "Steps in time, across, with the launch in blue. Or down, with a card for each step."
+
+```html
+<script>
+const steps = [{ when: 'Mar', what: 'idea' }, { when: 'Jun', what: 'beta' }, { when: 'Sep', what: 'launch', color: 'blue', on: 'launch' }, { when: 'Dec', what: 'next' }];
+slide(Row(Timeline(steps), Timeline(steps.map((s) => ({ ...s, on: undefined })), { down: true }).on('down')))
+</script>
+```
+
+## `p-tree` · Tree
+
+Narration: "A tree grows down from the app, to the web and the API, and from the API to the database and the jobs."
+
+```html
+<script>
+const app = Labeled('App', Part('phone', { size: 'm' })), web = Labeled('Web', Part('browser', { size: 'm' })),
+  api = Labeled('API', Part('server', { size: 'm' })), db = Labeled('Database', Part('database', { size: 'm' })), jobs = Labeled('Jobs', Part('gear', { size: 'm' }));
+slide(Tree([app, web, [api, db, jobs]]))
+</script>
+```
+
+## `p-stack` · Stack
+
+Narration: "Layers of a system, from the browser down to the server and the database. Or nested, each one inside the last."
+
+```html
+<script>
+slide(Row(
+  Stack(['Browser', { label: 'Server', color: 'blue', on: 'server' }, 'Database']),
+  Stack(['Machine', 'Container', { label: 'App', color: 'blue' }], { nest: true }).on('inside')
+))
+</script>
+```
+
+## `p-compare` · Compare
+
+Narration: "REST versus GraphQL, side by side: GraphQL takes one request, but has a schema to keep."
+
+```html
+<script>
+slide(Compare(
+  { title: 'REST', points: [{ text: 'simple to start', good: true }, { text: 'many round trips', good: false }, 'cached by URL'] },
+  { title: 'GraphQL', points: [{ text: 'one request', good: true, on: 'one' }, { text: 'a schema to keep', good: false }, 'typed'], on: 'GraphQL' }
+))
+</script>
+```
+
+## `p-cycle` · Cycle
+
+Narration: "A loop: plan, build, ship, learn, and back to plan."
+
+```html
+<script>
+const plan = Labeled('Plan', Part('compass', { size: 'm' })), build = Labeled('Build', Part('hammer', { size: 'm' })),
+  ship = Labeled('Ship', Part('rocket', { size: 'm' })), learn = Labeled('Learn', Part('book', { size: 'm' }));
+slide(Cycle([plan.on('plan'), build, ship, learn]))
 </script>
 ```

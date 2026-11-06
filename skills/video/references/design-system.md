@@ -93,7 +93,7 @@ Inside `.slide`, which fills the area under the title and centers what it holds.
 | `.slide` | the area under the title | `position: absolute; left: 100px; right: 100px; top: 190px; bottom: 130px; display: flex; flex-direction: column; gap: 36px; align-items: center; justify-content: center; text-align: center;` |
 | `.across` | a row | `display: flex; gap: 48px; align-items: center; justify-content: center;` |
 | `.far` | a row with room for arrows | `gap: 170px;` |
-| `.down` | a column | `display: flex; flex-direction: column; gap: 20px; align-items: center; justify-content: center;` |
+| `.down` | a column | `display: flex; flex-direction: column; gap: 28px; align-items: center; justify-content: center;` |
 | `.grid` | equal columns, 3 by default | `display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 32px; align-items: center; justify-items: center;` |
 | `.n2` | 2 columns in a grid | `--n: 2;` |
 | `.n4` | 4 columns | `--n: 4;` |
@@ -112,7 +112,7 @@ Inside `.slide`, which fills the area under the title and centers what it holds.
 | `.box` | the same card, placed by hand (`.amber`, `.green`, `.red`, `.ghost`, `.sketch`, `.left`, `.row`) | `position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--surface); border: 0; border-radius: var(--r); font-size: 28px; line-height: 1.3; padding: 12px 20px;` |
 | `.panel` | the same card, as the forms use it | `position: absolute; background: var(--panel, var(--surface)); border: 0; border-radius: var(--r);` |
 | `.note` | the one callout: a quiet panel labeled Note (`.red` says Watch out, `.blue`) | `position: absolute; font-size: 26px; padding: 14px 22px; border-radius: var(--r); background: var(--surface); border: 0; line-height: 1.3;` |
-| `.label` | the label: a small quiet patch for a word or two. The only one | `display: inline-block; font-size: 20px; padding: 4px 12px; background: var(--surface-2); color: var(--ink-2); border: 0; border-radius: var(--r-sm); font-family: var(--font); font-weight: 600; white-space: nowrap;` |
+| `.label` | the label: a small quiet patch for a word or two. The only one | `display: inline-block; font-size: 20px; padding: 4px 12px; background: var(--surface-2); color: var(--ink-2); border: 0; border-radius: var(--r-sm); font-family: var(--font); font-weight: 600; max-width: 100%; text-wrap: balance;` |
 | `.frame` | a dashed group with a `.lbl` | `position: absolute; border: 2px dashed var(--line); border-radius: var(--r-lg);` |
 | `.window` | a browser window with a `.bar` and an `<img>` | `position: absolute; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden;` |
 | `.code` | a code block (`<pre><code>`), a darker panel; `.hl` lights a line in blue | `position: absolute; background: var(--bg-deep); border: 0; border-radius: var(--r-lg); text-align: left;` |
@@ -403,6 +403,18 @@ A diagram of our own glyphs: Flow([[browser, server, 'GET /'], [server, db]], { 
 
 Options: `direction`.
 
+### `Tree(spec, options)`
+
+A tree, growing down from its root: Tree([root, child, [child, grandchild]], { direction }).
+
+Options: `direction`.
+
+### `Cycle(steps, options)`
+
+A loop of steps around a ring, the last leading back to the first: Cycle([plan, build, ship]).
+
+Options: `fromSide`, `toSide`, `direction`.
+
 ### `Form(kind, data)`
 
 One of the explaining forms, as a glyph. It fills the stage, and its slide's cut hides it like anything else.
@@ -434,6 +446,30 @@ Options: `color`, `enter`.
 A big number that counts up to its value when it comes on, with what it counts under it.
 
 Options: `color`, `enter`, `prefix`, `suffix`, `dec`.
+
+### `Line(points, options)`
+
+A line over time, neutral with one moment marked in blue, or all blue with trend: Line([3, 5, 4, 8], { mark: { at: 2, label } }).
+
+Options: `trend`, `color`, `mark`, `enter`.
+
+### `Timeline(steps, options)`
+
+Steps in time, across or down: Timeline([{ when, what, color, on }], { down }).
+
+Options: `down`, `enter`.
+
+### `Stack(layers, options)`
+
+Layers of a system, stacked or nested: Stack(['Browser', 'Server', 'Database'], { nest }).
+
+Options: `nest`, `enter`.
+
+### `Compare(left, right, options)`
+
+This versus that, side by side: Compare({ title, points }, { title, points }).
+
+Options: `enter`.
 
 ### `Table(columns, rows, options)`
 
@@ -477,7 +513,7 @@ Each returns the piece, so they chain: `Part('server').on('server').light('busy'
 
 - `.on(word)`: Come on screen when this word is spoken.
 - `.at(time)`: Come on screen at this many seconds into the slide.
-- `.light(word, how = 'yellow')`: Light up when this word is spoken: light('busy'), or light('busy', { style: 'spot' }). lift (the default) grows it, with a shadow on Slate and a thin outline on Chalk; spot dims everything else.
+- `.light(word, how = 'yellow')`: Light up when this word is spoken: light('busy'), or light('busy', { style: 'spot' }). It goes out when the next thing on the slide lights, or on its own word with { until: 'word' }; { keep: true } keeps it on. lift (the default) grows it a little inside an outline in its color; spot dims everything else.
 - `.badge(name, options = {})`: Pins a small drawing to a corner, so one drawing covers its variants: a person with a check, a shield with a padlock. It pops in just after the drawing, or when its own word is spoken: badge('check', { on: 'approved' }).
 - `.unlight(word)`: Stop glowing when this word is spoken.
 - `.morph(word, styles, options = {})`: Change how it looks when this word is spoken: morph('fixed', { color: 'green', scale: 1.1 }).

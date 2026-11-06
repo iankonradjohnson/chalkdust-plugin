@@ -32,10 +32,15 @@ scene(({ K }) => K.say(`
 | --- | --- |
 | One thing leads to, calls or sends to another | `arrow #a #b`, or `K.travel` for something moving along it |
 | Steps in a system, or code running | `K.trace`, `K.states` or `K.barrier` (see [Forms](#forms-for-explaining-code)) |
-| How parts are structured | `Flow`, `Sequence` or `Machine` ([Diagrams](#diagrams-our-own-pieces)) |
+| How parts are structured | `Flow`, `Sequence` or `Machine` ([Diagrams](#diagrams-our-own-pieces)), `Tree` for what branches, `Stack` for layers (`nest: true` for what runs inside what) |
+| Steps in time, or a loop | `Timeline` (`down: true` for a card each), `Cycle` for steps that come back round |
+| This versus that | `Compare`, two cards side by side with good points green and bad ones red |
 | One thing becoming another | `rewrite`, `swap`, `K.reshape` or `move` |
-| Amounts and comparisons | `.bar` with `wipe`, or `count` |
-| Look at this exact thing | `light` or `mark`, as the last resort, and at most one or two per slide |
+| Amounts and comparisons | `Bars` and `Stat`, `Line` for change over time (`trend: true` when the trend is the point), `count` |
+| Look at this exact thing | `light` or `mark`, as the last resort, and at most one or two per slide. In code, light the one word: `highlight: [{ word: 'retries', on: 'retries' }]` |
+
+- **Every light ends.** A light goes out when the next thing on the slide lights, so only what's being talked about is lit. Give it its own end with `.light('word', { until: 'other' })`, or `unlight` in `K.say`; say `keep` (`{ keep: true }`, or `light #a keep`) only when it should stay on. Code highlights end the same way.
+- **Long code wraps** by itself, so paste real lines; keep a block short rather than shrinking it.
 
 - **Layouts:** `.slide` fills the area under the title and centers its contents. Inside it use `.across` (add `.far` when an arrow goes between things), `.down`, and `.grid` (`.n2`, `.n4` or `.n5` for the number of columns, 3 by default). `.left` left-aligns, `.wide` takes the full width, and `.fill` takes the leftover room.
 - **Text:** `.big`, `.h1`, `.h2`, `.h3`, `.caption`. Color it with `.c-<name>` for any color in `design-system.md`, like `.c-blue`, `.c-yellow`, `.c-red`, `.c-green` or `.c-muted`.
@@ -189,7 +194,7 @@ Path colors are `amber`, `red`, and `green`, with blue as the default. Reuse the
 </div>
 ```
 
-A line is 40px tall, and the `pre` has 24px of top padding. A bar for line *n* (0-indexed, counting every line in the block, including blank ones) is at `top: 24 + 40n`, and spanning *k* lines means `height: 40k`. A line fits about 72 characters in 1190px, and a longer one doesn't wrap, so break it yourself. Trim real code with `…` rather than shrink the font. Don't put the file name or line numbers on screen: say them in the narration, or in chat.
+A line is 40px tall, and the `pre` has 24px of top padding. A bar for line *n* (0-indexed, counting every line in the block, including blank ones) is at `top: 24 + 40n`, and spanning *k* lines means `height: 40k`. A line fits about 72 characters in 1190px, and in this hand-placed block a longer one doesn't wrap, so break it yourself (the `Code` piece wraps by itself). Trim real code with `…` rather than shrink the font. Don't put the file name or line numbers on screen: say them in the narration, or in chat.
 
 ## Layout rules
 
