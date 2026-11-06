@@ -457,7 +457,7 @@ Options: `trend`, `color`, `mark`, `enter`.
 
 Steps in time, across or down: Timeline([{ when, what, color, on }], { down }).
 
-Options: `down`, `enter`.
+Options: `down`, `follow`, `enter`.
 
 ### `Stack(layers, options)`
 

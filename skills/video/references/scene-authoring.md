@@ -378,6 +378,8 @@ Treat a screenshot as published: check it for local paths, names and anything pr
 
 Any `<a href>` on the stage is clickable in the live player. It opens in a new tab and pauses the video. Clicking anywhere else plays or pauses. A link that hasn't appeared yet doesn't respond. Give it a class to style it as a building block: `<a class="box green" href="…" style="…">`.
 
+**Link code to its file.** When the code comes from a repository you can reach on GitHub (it has a GitHub remote, or `gh` works), give `Code` and `Diff` the file's link, at the commit or branch you read it from, and the line if you can: `Code(src, { lang: 'py', link: 'https://github.com/owner/repo/blob/main/app/orders.py#L40' })`. The block shows the file's name and opens it when clicked, so the viewer can go to the real code. Prefer this to naming the file in the narration. Only `https://` links work.
+
 ## Patterns that worked
 
 - **Request flow**: a request label, then boxes for each layer, then a dot traveling across, then a green return path to a response label, then a short label under each box naming its job.
