@@ -1,23 +1,12 @@
-<div id="d" class="diagram" style="left:200px;top:190px;width:1520px;height:730px">
-classDiagram
-  direction LR
-  class Project
-  class Scene
-  class Beat
-  class Comment
-  Project "1" --> "*" Scene
-  Scene "1" --> "*" Beat
-  Project "1" --> "*" Comment
-  Comment --> Project : answer
-</div>
 <script>
-scene(({ at, K }) => {
-  K.diagram('#d', [
-    [at(0, 0.1), 'Project'],
-    [at(0, 0.5), 'Project>Scene', 'Scene'],
-    [at(0, 0.75), 'Scene>Beat', 'Beat'],
-    [at(1, 0.1), 'Project>Comment', 'Comment'],
-    [at(1, 0.5), 'Comment>Project'],
-  ]);
-});
+const project = Labeled('Project', Part('folder', { size: 's' })).on('project');
+const scene = Labeled('Scene', Part('film', { size: 's' })).on('scenes');
+const beat = Labeled('Beat', Part('microphone', { size: 's' })).on('beats');
+const comment = Labeled('Comment', Part('question', { size: 's' })).on('comments');
+slide(Flow([
+  [project, scene, 'has'],
+  [scene, beat, 'has'],
+  [project, comment, 'has'],
+  [comment, project, { label: 'answer', dashed: true, on: 'branch' }],
+]));
 </script>

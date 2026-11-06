@@ -1,6 +1,8 @@
 # Scene authoring
 
-How to write `scenes.json` and `scenes/<id>.html`. The hosted service supplies the page template, the styles for every class named here, and GSAP, `scene-kit` and Mermaid, so scenes use them without loading anything. `examples/demo/` is a short worked example.
+**Read `design-system.md` first.** It lists every color, size, font, layout, drawing, piece, `K` helper, form, transition and diagram type there is, generated from the code, so what it names exists. This guide says how to put them together. `presets.md` has a tested scene for every form and piece: start from the closest one.
+
+How to write `scenes.json` and `scenes/<id>.html`. The hosted service supplies the page template, the styles for every class named here, and GSAP and `scene-kit`, so scenes use them without loading anything. `examples/demo/` is a short worked example.
 
 ## Start here: the fast way
 
@@ -30,15 +32,15 @@ scene(({ K }) => K.say(`
 | --- | --- |
 | One thing leads to, calls or sends to another | `arrow #a #b`, or `K.travel` for something moving along it |
 | Steps in a system, or code running | `K.trace`, `K.states` or `K.barrier` (see [Forms](#forms-for-explaining-code)) |
-| How parts are structured | `K.diagram` ([Diagrams](#diagrams-uml-and-other-structure)), or `K.zoom` to go inside a part |
+| How parts are structured | `Flow`, `Sequence` or `Machine` ([Diagrams](#diagrams-our-own-pieces)) |
 | One thing becoming another | `rewrite`, `swap`, `K.reshape` or `move` |
 | Amounts and comparisons | `.bar` with `wipe`, or `count` |
 | Look at this exact thing | `light` or `mark`, as the last resort, and at most one or two per slide |
 
 - **Layouts:** `.slide` fills the area under the title and centers its contents. Inside it use `.across` (add `.far` when an arrow goes between things), `.down`, and `.grid` (`.n2`, `.n4` or `.n5` for the number of columns, 3 by default). `.left` left-aligns, `.wide` takes the full width, and `.fill` takes the leftover room.
-- **Text:** `.big`, `.h1`, `.h2`, `.h3`, `.caption`. Color it with `.c-blue`, `.c-yellow`, `.c-red`, `.c-green` or `.c-muted`.
+- **Text:** `.big`, `.h1`, `.h2`, `.h3`, `.caption`. Color it with `.c-<name>` for any color in `design-system.md`, like `.c-blue`, `.c-yellow`, `.c-red`, `.c-green` or `.c-muted`.
 - **Drawings:** use our own, with `data-part` and `chalkdust parts <words>`. They take `.s`, `.m`, `.l` or `.xl`. Don't use stock line icons. `data-icon` still works, and it draws our version of that thing when we have one. `.tile` is a card. `.bar` with `style="--v:60%"` is a chart bar.
-- **Colors:** in hand-written CSS, use `var(--ink)`, `var(--muted)`, `var(--surface)`, `var(--line)` or a color name, so light and dark both work. Only flat colors.
+- **Colors:** in hand-written CSS, use `var(--ink)`, `var(--muted)`, `var(--surface)`, `var(--line)` or `var(--<name>)` for any color in `design-system.md` (`var(--amber)` is yellow), so light and dark both work. Only flat colors.
 - **`K.say`:** one line per moment. A line starts with a word from the narration, and each line looks for its word after the previous one, so repeats just work and digits or near misses still match. It can also start with `+1.5` (seconds after the last line) or `@2` or `@2.5` (beat 2, or halfway through it). The first thing on a line is always its time, so to run a move half a second later, write `+0.5 arrow #a #b`. A line that starts with a selector is the one exception. After that, moves separated by `;`: any `K` helper by name, then selectors, `"text"`, numbers, `name=value`, a `+0.3` nudge, and bare words such as `red`, `in`, `fade`, `box` or `left`. A selector alone means show, and a selector matching several elements goes through them in turn. `spot` takes `until=word`. Selectors can't contain spaces, so give the element a class.
 - **Cuts:** a new slide is a cut. So is `cut #two` between sibling `.slide` or `.layer` blocks in one scene, which also clears lines drawn so far, ends any spot and resets the camera. Later blocks stay hidden until cut to.
 - Arrows and marks measure where things are when the scene loads, so don't change the text of something next to them, except with `K.count`, which holds its width.
@@ -58,7 +60,7 @@ Everything below still works when a scene needs something special, including exa
 - [GSAP scenes with scene-kit](#gsap-scenes-with-scene-kit)
 - [Icons and richer shapes](#icons-and-richer-shapes)
 - [Forms for explaining code](#forms-for-explaining-code)
-- [Diagrams: UML and other structure](#diagrams-uml-and-other-structure)
+- [Diagrams: our own pieces](#diagrams-our-own-pieces)
 - [Images](#images)
 - [Links](#links)
 - [Patterns that worked](#patterns-that-worked)
@@ -128,7 +130,7 @@ All of them use `fill: both`, so an element is in its "from" state before its de
 | Class | Effect | Use for |
 | --- | --- | --- |
 | `a-in` | Fade in and rise 18px | Boxes, cards, notes, code |
-| `a-pop` | Scale in with a small overshoot | Key boxes, badges, results |
+| `a-pop` | Scale in with a small overshoot | Key boxes, labels, results |
 | `a-fade` | Plain fade in | Labels, frames, highlight bars |
 | `a-out` | Fade to 0 | Removing a note (wrap it in `.layer`) |
 | `a-dim` | Fade to 0.28 | De-emphasizing the inputs once they're merged |
@@ -136,7 +138,7 @@ All of them use `fill: both`, so an element is in its "from" state before its de
 | `a-strike` | Red line grows across | Dropped fields (`.sline` inside a `position:relative` span) |
 | `a-glow` / `a-glowred` | Yellow or red ring pulse that settles | Pointing at a field, or flagging a problem |
 | `a-press` | Button press | Click moments |
-| `a-fly` | Moves along `offset-path`, fading in and out | Packets, events, chips traveling |
+| `a-fly` | Moves along `offset-path`, fading in and out | Packets, events, labels traveling |
 | `a-flystay` | Moves along `offset-path` and stays at the end | Something that arrives and remains |
 | `a-cap` | Captions (internal) | — |
 
@@ -153,10 +155,9 @@ The canvas is 1920×1080. Everything is absolutely positioned with inline `left`
 - `.box`: a centered card. Variants are `.amber` (schemas, marks), `.green` (correct/ok), `.red` (problems), `.sketch` (dashed, "proposed"), `.ghost`, and `.left` (left-aligned). Put a `<small>` inside for a subtitle.
 - `.card` with `<h3>` and `.row` children: a vertical list of fields, such as a table's columns or a response's fields. Rows are 46px.
 - `.frame` with `<span class="lbl">`: a dashed group outline with a label, such as a folder or a transaction.
-- `.pill`: a monospace rounded pill, for URLs, routes, and endpoints.
-- `.badge`: an orange pill, for a short tag such as a file path, a status, or "sketch".
+- `.label`: the one label, a small quiet patch for a word or two: a route, a status, a tag. There's no pill, badge or chip.
 - `.note`, `.note.red`, `.note.blue`: callouts.
-- `.chip`: a small yellow monospace tag that travels along a path ("title", "item event").
+- A `.label` can travel along a path with `a-fly` ("title", "item event").
 - `.dot`: a glowing dot that travels along a path.
 - `.lbltxt`: small grey label text.
 - `.mark`: yellow bold text, for a translatable mark or a highlighted value.
@@ -172,7 +173,7 @@ One `<svg class="ov">` per scene covers the canvas in page coordinates:
 </svg>
 <div class="dots">
   <div class="dot a-fly" data-b="1" data-f="0.85" data-d="1.8" style="offset-path:path('M412 420 L1600 420')"></div>
-  <div class="chip a-fly" data-b="4" data-f="0.6" data-d="1.3" style="offset-path:path('M1660 715 L1660 850')">title</div>
+  <div class="label a-fly" data-b="4" data-f="0.6" data-d="1.3" style="offset-path:path('M1660 715 L1660 850')">title</div>
 </div>
 ```
 
@@ -196,8 +197,8 @@ A line is 40px tall, and the `pre` has 24px of top padding. A bar for line *n* (
 - **The caption zone** is y > 950. Keep content above about 940. A two-line caption reaches up to about y 946.
 - **The right edge** is 1880. Leave 40px or more of margin.
 - **Positioning**: classed building blocks are absolutely positioned already. A plain `div` isn't, so give it `position:absolute`.
-- **Text widths**: monospace at 26px is about 15.6px per character. A pill's width must fit its text plus 44px of padding, or it wraps, and it needs a height of at least 60px. This was the most common layout bug.
-- **Arrows** must not pass through boxes or labels. Route returns below a row of boxes, in the gap between the boxes and their badges.
+- **Text widths**: monospace at 26px is about 15.6px per character. A label's width must fit its text plus its padding, or it wraps, and it needs a height of at least 60px. This was the most common layout bug.
+- **Arrows** must not pass through boxes or labels. Route returns below a row of boxes, in the gap between the boxes and their labels.
 - Put one idea on screen at a time. Build it up across beats, and don't show the finished diagram on the first frame.
 
 ## GSAP scenes with scene-kit
@@ -214,7 +215,7 @@ scene(({ at, K }) => {
   K.show('#br', { at: at(0, 0.05) });                          // pop in (kind: 'in' | 'fade')
   K.show('#is', { at: at(2, 0.45) });
   const a = K.arrow('#br', '#is', { at: at(2, 0.5), color: 'red', fromSide: 'bottom', toSide: 'left', flow: 2 });
-  K.travel('request', a, { at: at(2, 0.7) });                  // a chip rides the arrow
+  K.travel('request', a, { at: at(2, 0.7) });                  // a label rides the arrow
   K.morph('#is', { borderColor: '#e5534b', backgroundColor: '#3a1616' }, { at: at(3, 0.3) });
   K.spot(['#br', '#is'], { at: at(3, 0.15) });                 // dim everything else
 });
@@ -225,7 +226,7 @@ scene(({ at, K }) => {
 | --- | --- |
 | `K.arrow(from, to, o)` | Curved arrow between two elements, drawn on, with a head that lands at the end. Without sides, perfect-arrows picks the edges. Use `fromSide` and `toSide` (`'right'`, `'bottom@0.3'`) to stop two arrows sharing an edge, and `curve` (0.25 to 0.5) for how much it bends. `color`: blue, green, amber, red, yellow. `flow: n` runs dots along it n times. `dashed: true`. Returns the path. |
 | `K.path(d, o)` | The same for a hand-written SVG path. Pass `head: {x, y, angle}` (radians) for an arrowhead. |
-| `K.travel(textOrSelector, path, o)` | A chip, or an existing element, moves along a path. `stay: true` keeps it at the end. |
+| `K.travel(textOrSelector, path, o)` | A label, or an existing element, moves along a path. `stay: true` keeps it at the end. |
 | `K.swap(sel, text, o)` | The text lifts away and the new text settles in, in the same spot. Use it for English → Spanish. Optional `color`. |
 | `K.type(sel, text, o)` | Types text letter by letter. |
 | `K.show / K.hide(sel, o)` | Enter or leave. `hide` also takes an arrow, and removes its head too. Pick the `kind` by what the entrance means: `slide` came from elsewhere (`from`: left, right, top, bottom), `grow` comes out of the thing above it. `pop`, `in` and `fade` are neutral, so don't use one for everything. |
@@ -233,7 +234,6 @@ scene(({ at, K }) => {
 | `K.spot(keep[], o)` | Dim everything else and ring the kept elements. `until` restores them. |
 | `K.cam(selOrRect, o)` | Zoom so the target fills the stage. `reset: true` zooms back out. |
 | `K.stagger(sel, o)` | A list enters one item after another (`each` seconds apart). |
-| `K.diagram(sel, steps)` | Builds a Mermaid diagram piece by piece. See [Diagrams](#diagrams-uml-and-other-structure). |
 | `K.move(sel, to, o)` | The same element travels to another element's center, or to `{x, y}`, so nobody has to be told it's the same thing. `style: {...}` changes other CSS on the way. Arrows don't follow, so draw them after the move. |
 | `K.icon(sel, o)` | Draws an icon on, line by line. See [Icons and richer shapes](#icons-and-richer-shapes). |
 | `K.light(sel, o)` | Lights something up to show it's active. By default it lifts: it rises with a soft shadow, and its color goes on its border and any icon inside. `color`: blue, green, amber, red, yellow. `style`: `glow`, `ring`, `card` or `spot` for another look. |
@@ -267,7 +267,7 @@ Look before you draw: `chalkdust parts lighthouse ship`. Use what it finds with 
 
 ## Forms for explaining code
 
-Six helpers for how code behaves. **Reach for one first when a scene explains code.** You pass data and times, and the form does the layout and animation, so it takes far less writing than placing boxes by hand. `K.zoom` and `K.reshape` fill the stage. `K.trace` fills the upper two thirds. Each `K.race` takes about 340px from its `top`, so call it twice or put a code block under it. Anything that isn't one of the six below, build by hand. A form's elements behave like any others, so you can add `K` calls around it. Use real code in `code`, and keep labels to a few words.
+Five helpers for how code behaves. **Reach for one first when a scene explains code.** You pass data and times, and the form does the layout and animation, so it takes far less writing than placing boxes by hand. `K.reshape` fills the stage. `K.trace` fills the upper two thirds. Each `K.race` takes about 340px from its `top`, so call it twice or put a code block under it. Anything that isn't one of the five below, build by hand. A form's elements behave like any others, so you can add `K` calls around it. Use real code in `code`, and keep labels to a few words.
 
 | The explanation is about | Use |
 | --- | --- |
@@ -275,7 +275,6 @@ Six helpers for how code behaves. **Reach for one first when a scene explains co
 | Something that's in one state at a time, and what moves it | `K.states` |
 | One data shape becoming another | `K.reshape` |
 | Timing: two things at once, where the order decides the outcome | `K.race` |
-| Where something lives in a large system, down to the code | `K.zoom` |
 | Separate attempts stopped at a wall, like security checks | `K.barrier` |
 
 **Timing by word:** give a step `on: 'word'` instead of `at`, and it lands on that spoken word. Steps in a list look for their word after the one before, so a repeated word just works. `beat` limits the search and `o` adds seconds. `K.reshape` takes `on: { keep: 'word', add: 'word' }`, and `K.race` takes `fromOn` and `toOn`. Words must match the narration as spoken, and the build warns when one doesn't. You can also give `at`, a time in seconds from `at(beat, fraction)`. Icons are any Lucide name, written as `icon: 'name'`.
@@ -295,7 +294,7 @@ scene(({ at, K }) => {
 </script>
 ```
 
-`hops` holds 3–6 items. `carry` is the moving chip's text at that hop, and it changes in place. `job` and `code` are optional.
+`hops` holds 3–6 items. `carry` is the moving label's text at that hop, and it changes in place. `job` and `code` are optional.
 
 ```js
 K.states({
@@ -332,22 +331,6 @@ K.race({
 A playhead sweeps from time `from` to time `to`, and each event appears as it passes, so `x` runs from 0 to `span`. `kind` is `read`, `write`, `bad` or `good`. `shared` is optional, and shows the value both sides are fighting over. To compare a broken run with a fixed one, call it twice with `top: 262` and `top: 630`.
 
 ```js
-K.zoom({
-  start: at(0, 0.3), lang: 'python',
-  nodes: [
-    { id: 'web', label: 'Web app', icon: 'globe' },
-    { id: 'api', label: 'API', icon: 'server', color: 'amber', job: 'optional line', children: [
-      { id: 'auth', label: 'Auth', icon: 'lock', code: 'def login(user):\n    ...', file: 'auth.py' },
-      { id: 'jobs', label: 'Jobs', icon: 'clock' },
-    ] },
-  ],
-  steps: [{ open: 'api', at: at(1) }, { open: 'auth', at: at(2) }, { back: true, at: at(3) }],
-});
-```
-
-Each `open` dives into a box on the level showing, and its children or code take over the stage, under a breadcrumb.
-
-```js
 K.barrier({
   source: { label: 'Scene', icon: 'file-code' }, wall: 'sandbox + policy',
   rows: [
@@ -360,33 +343,21 @@ K.barrier({
 
 Each row is one attempt, stopped at the wall unless it has `pass: true`. Fit up to 5 rows.
 
-## Diagrams: UML and other structure
+## Diagrams: our own pieces
 
-For anything with real structure, such as sequences, classes, states or flows, write Mermaid instead of placing boxes by hand. Mermaid does the layout, and `K.diagram` builds it up in step with the narration. `examples/demo/`, next to this guide's folder, has working examples.
+For anything with real structure, draw it with our pieces, not boxes placed by hand. They lay themselves out, use our drawings, and build up in step with the narration. `examples/demo/`, next to this guide's folder, has working examples.
+
+- **Something flows from one thing to the next:** `Flow([[a, b, 'label'], [b, c]])`. Each node comes on as the arrow reaching it draws.
+- **Who sends what to whom, in order:** `Sequence([a, b, c], [[a, b, 'GET /', { on: 'asks' }], [b, a, '200', { reply: true }]])`.
+- **States and what moves between them:** `Machine([[idle, busy, 'start']], { start: idle, steps: [{ to: busy, on: 'busy' }] })`.
 
 ```html
-<div id="d" class="diagram" style="left:200px;top:190px;width:1520px;height:730px">
-sequenceDiagram
-  participant P as Player
-  participant W as Watcher
-  P->>W: question saved
-</div>
 <script>
-scene(({ at, K }) => {
-  K.diagram('#d', [
-    [at(0, 0.7), 'P', 'W'],
-    [at(1, 0.1), 'msg 0'],
-  ]);
-});
+const player = Labeled('Player', Part('browser', { size: 's' })).on('player');
+const agent = Labeled('Agent', Part('robot', { size: 's' })).on('agent');
+slide(Sequence([player, agent], [[player, agent, 'question saved', { on: 'saved' }], [agent, player, 'answer ready', { reply: true, on: 'plays' }]]));
 </script>
 ```
-
-- Each step is `[time, ...names]`. A named piece stays hidden until its time, and anything not named is visible from the start.
-- Names: a node, class, state or actor by its Mermaid id or label (`'Project'`, `'P'`), an edge as `'From>To'`, and a sequence message as `'msg 0'`, `'msg 1'`, in order. A wrong name logs the known names to the console.
-- Edges draw on, then their arrowhead, label and multiplicities appear. Mermaid doesn't link multiplicities like `1` and `*` to their edge, so each goes with the nearest edge end. Where edge ends sit close together, one can appear with the wrong edge.
-- `data-look="handDrawn"` gives a sketched look. It works on flowcharts, state diagrams and class diagrams, not sequence diagrams.
-- Keep the labels short: the on-screen word limit still applies. Mermaid sizes the diagram to fit its box, so check the still for text that ends up too small.
-- Pages with a diagram are about 3 MB, because Mermaid is inlined only in the scenes that use it.
 
 ## Images
 
@@ -404,9 +375,9 @@ Any `<a href>` on the stage is clickable in the live player. It opens in a new t
 
 ## Patterns that worked
 
-- **Request flow**: a request pill, then boxes for each layer, then a dot traveling across, then a green return path to a response pill, then a short label under each box naming its job.
+- **Request flow**: a request label, then boxes for each layer, then a dot traveling across, then a green return path to a response label, then a short label under each box naming its job.
 - **Shape transform**: a source card of fields, then a mapper box, then a result card. Dropped fields get a strike, renamed fields get a red glow on both sides with a "≠" note.
-- **Many-to-one**: concrete items on the left, arrows converging on one template pill, then the inputs dim.
+- **Many-to-one**: concrete items on the left, arrows converging on one template label, then the inputs dim.
 - **Counter**: stack number divs at the same spot with a solid background, each `a-fade` with `data-d="0.12"` at a later `data-f`.
 - **Branching decision**: a question box, then a "yes" branch in amber and a "not yet" branch in red with `a-glowred` at the end of the beat.
 - **Checklist finale**: one `.box.left` per item, 96px apart, timed to "One… Two… Three…" in the narration.

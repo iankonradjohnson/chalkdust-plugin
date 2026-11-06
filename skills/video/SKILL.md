@@ -29,7 +29,7 @@ Never ask for a key in chat, and never run `chalkdust login <key>` with a key yo
 ## Making a video
 
 1. **Plan scenes.** One scene per idea, usually 25–60 seconds each, with the length set by the concept or by what the user asks for. Narration runs at about 2.4 words per second, so a one-minute video is about 145 words. Lead with the user's actual question, use real code from the repo, and finish with a recap.
-2. **Write the project** in a folder outside the repo, such as `~/chalkdust/<slug>/`, unless the user names another: `scenes.json`, `scenes/<id>.html` and, if needed, `assets/`. Read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/scene-authoring.md` first. It has the timing rules, building blocks, layout grid, diagrams, images and links. `${CLAUDE_PLUGIN_ROOT}/skills/video/examples/demo/` is a short complete project to copy from. Write narration in plain, short sentences, and land each animation on the sentence that describes it.
+2. **Write the project** in a folder outside the repo, such as `~/chalkdust/<slug>/`, unless the user names another: `scenes.json`, `scenes/<id>.html` and, if needed, `assets/`. Read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/design-system.md` first: every color, size, layout, drawing, piece, `K` helper, form and transition there is, so use what it names rather than plain boxes. Then start each slide from the closest preset in `${CLAUDE_PLUGIN_ROOT}/skills/video/references/presets.md`: a tested scene for every form and piece, to copy and change. Then read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/scene-authoring.md`. It has the timing rules, building blocks, layout grid, diagrams, images and links. `${CLAUDE_PLUGIN_ROOT}/skills/video/examples/demo/` is a short complete project to copy from. Write narration in plain, short sentences, and land each animation on the sentence that describes it.
 3. **Publish:**
    ```bash
    chalkdust publish ~/chalkdust/<slug>
@@ -54,9 +54,21 @@ When it wakes you:
 
 1. **Restart the watcher first,** in the background, so a second question isn't missed.
 2. Read the context. Check the code if the answer depends on facts.
-3. In `answer_folder`, write `scenes.json` and `scenes/<id>.html`, with scene ids like `a01`, which only need to be unique within that answer. A nested answer gets its own `answer_folder` in the same `answers/` folder, so use the path you're given. Use the kicker `Answer · <time> · "<short quote of the question>"`, and a title that makes sense on its own. Answer in the first beat, as in "Because the wait doubles, so a fixed amount stops mattering." Don't re-explain the whole scene. If the question comes back a second time, go deeper and slower, not shorter.
-4. Run `chalkdust answer ~/chalkdust/<slug> <question id>`, and read the stills it lists.
-5. Run `chalkdust release ~/chalkdust/<slug> <question id>`. The player picks it up within seconds, and plays it if the viewer is still waiting.
+3. **Stream the answer,** so the viewer starts hearing it after its first sentence instead of waiting for the whole clip. For each beat, in one Bash call, write the slide in `answer_folder` and publish it:
+   ```bash
+   cat > <answer_folder>/scenes/a01.html <<'SCENE'
+   <script>slide(...)</script>
+   SCENE
+   chalkdust stream ~/chalkdust/<slug> <question id> a01 "Slide title" "One or two sentences of narration."
+   ```
+   The service narrates and builds that beat, and the player starts the answer about a second after the first one lands. The command prints `live:` and what the checks found on that slide. Slide ids like `a01` only need to be unique within that answer, and a nested answer gets its own `answer_folder`, so use the path you're given. Give each slide a title that makes sense on its own.
+   - To grow the graphic, use the same slide id, and write the whole slide again with the new piece added. Use a new id for a new idea. Write slides with the layouts in the authoring guide, and point at what you're talking about.
+   - The first sentence answers the question and makes sense by itself, as in "Because the wait doubles, so a fixed amount stops mattering." Don't re-explain the whole scene. If the question comes back a second time, go deeper and slower, not shorter.
+   - Published beats can't be taken back, so say only what you've checked. If a beat fails to build, the viewer sees no change: fix it and run the command again. If the command can't reach the service, run the same command again, because a beat that already went out isn't added twice.
+   - While someone's waiting, don't stop for pictures. Fix what the checks flag by writing the slide again and running `chalkdust stream ~/chalkdust/<slug> <question id> --fix a01`, which adds no beat. If the player catches up with you, it waits and tells the viewer.
+4. Finish with `chalkdust stream ~/chalkdust/<slug> <question id> --done`. It checks the whole answer and takes stills of any slide placed by hand, which the beats name as they go. Read those, and fix any slide that needs it with `--fix`.
+
+When nobody's waiting, or an answer needs a full plan first, you can build it whole instead: write `scenes.json` and `scenes/<id>.html` in `answer_folder`, run `chalkdust answer ~/chalkdust/<slug> <question id>`, read the stills it lists, then run `chalkdust release ~/chalkdust/<slug> <question id>`. Use the kicker `Answer · <time> · "<short quote of the question>"`. That takes a couple of minutes before the viewer sees anything.
 
 If a comment isn't a question, such as a statement or "got it, never mind", leave one line instead of a video:
 

@@ -1,6 +1,6 @@
 {
   "name": "chalkdust",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Chalkdust: Claude Code answers you can watch and interrupt: animated, narrated videos about your codebase, played at a link, where you can raise your hand and get a video answer.",
   "author": {
     "name": "Ian Johnson"
