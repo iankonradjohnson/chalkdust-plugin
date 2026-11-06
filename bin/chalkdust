@@ -161,8 +161,39 @@ def cmd_publish(args):
     print("link to share, watch only:", state["watch_url"])
 
 
+REMIND = 180  # seconds a claimed question can sit with nothing written for it before the watcher brings it up again
+
+
+def stalled(folder, after=REMIND):
+    """Questions this watcher claimed that nobody answered: no DONE (release, stream --done and note leave one), and
+    nothing written in their folder for a while (Ian, 2026-11-06: "why didn't you finish making those answers")."""
+    answers, found = os.path.join(folder, "answers"), []
+    for qid in sorted(os.listdir(answers)) if os.path.isdir(answers) else []:
+        q = os.path.join(answers, qid)
+        if not os.path.exists(os.path.join(q, "question.json")) or os.path.exists(os.path.join(q, "DONE")):
+            continue
+        newest = max([os.path.getmtime(q)] + [os.path.getmtime(os.path.join(d, f)) for d, _, fs in os.walk(q) for f in fs])
+        if time.time() - newest >= after:
+            found.append(json.load(open(os.path.join(q, "question.json"))))
+    return found
+
+
+def answered(folder, question):
+    """Marks a question answered here, so the watcher stops bringing it up."""
+    q = os.path.join(folder, "answers", question)
+    os.makedirs(q, exist_ok=True)
+    open(os.path.join(q, "DONE"), "w").close()
+
+
 def cmd_watch(args):
     vid = video_id(args.folder)
+    left = stalled(args.folder)
+    if left:
+        for q in left:
+            print("REMINDER: this question was claimed a while ago and still has no answer. Answer it now (chalkdust stream ... --done, "
+                  "or release), or, only if it needs no answer, chalkdust note:")
+            print(json.dumps(q, indent=1))
+        return
     started = time.time()
     limit = float(os.environ.get("CHALKDUST_IDLE_MINUTES", 30)) * 60
     while True:
@@ -181,6 +212,7 @@ def cmd_watch(args):
     for q in questions:
         q["answer_folder"] = os.path.abspath(os.path.join(args.folder, "answers", q["id"]))
         os.makedirs(os.path.join(q["answer_folder"], "scenes"), exist_ok=True)
+        json.dump(q, open(os.path.join(q["answer_folder"], "question.json"), "w"), indent=1)
         print(json.dumps(q, indent=1))
 
 
@@ -230,6 +262,7 @@ def cmd_stream(args):
     try:
         if args.done:
             result = api("POST", route + "/done", {}, timeout=600)
+            answered(args.folder, args.question)
             print("done: the answer is complete")
             print_warnings(result.get("warnings", []))
             stills = save_stills(result, f"/api/videos/{vid}/questions/{args.question}/stills", folder)
@@ -253,6 +286,7 @@ def cmd_stream(args):
 
 def cmd_release(args):
     api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/release", {})
+    answered(args.folder, args.question)
     print("Released.")
 
 
@@ -267,6 +301,7 @@ def cmd_parts(args):
 
 def cmd_note(args):
     api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/note", {"text": args.text})
+    answered(args.folder, args.question)
     print("Noted.")
 
 

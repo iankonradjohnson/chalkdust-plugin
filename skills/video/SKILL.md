@@ -52,7 +52,7 @@ Questions should be answered in the moment, like raising a hand in class. **Ever
 
 When it wakes you:
 
-1. **Restart the watcher first,** in the background, so a second question isn't missed.
+1. **Restart the watcher first,** in the background, so a second question isn't missed. Always read what it printed. A question it claimed that nobody answered comes back under `REMINDER:` once three minutes pass with nothing written for it, every time the watcher starts, until you answer it (`chalkdust stream ... --done` or `release`), or note it with `chalkdust note` if it needs no answer.
 2. Read the context. Check the code if the answer depends on facts.
 3. **Stream the answer,** so the viewer starts hearing it after its first sentence instead of waiting for the whole clip. For each beat, in one Bash call, write the slide in `answer_folder` and publish it:
    ```bash
