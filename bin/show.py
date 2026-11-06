@@ -35,6 +35,19 @@ def drawing(name):
     return scored[0][1] if scored and scored[0][0] else None
 
 
+def with_drawings(items, key):
+    """Gives each item a drawing found by its name, unless it has one ("as much as possible", Ian, 2026-11-06)."""
+    out = []
+    for it in items:
+        it = {key: it} if isinstance(it, str) else dict(it)
+        if "part" not in it:
+            found = drawing(str(it.get(key, "")))
+            if found:
+                it["part"] = found
+        out.append(it)
+    return out
+
+
 def thing(t):
     """A thing to show: its caption, over its drawing if there is one. A thing can be "Name" or {"name", "part"}."""
     name = t if isinstance(t, str) else t.get("name", "")
@@ -56,14 +69,23 @@ def flow(show):
     return "const " + ", ".join(f"{n} = {g}" for n, g in zip(names, t)) + f";\nslide(Flow([{links}]))"
 
 
+def side(sd):
+    """A compare side with a drawing for its title and for each point, found by their words where there is one."""
+    sd = dict(sd)
+    if "part" not in sd and drawing(str(sd.get("title", ""))):
+        sd["part"] = drawing(str(sd["title"]))
+    sd["points"] = with_drawings(sd.get("points", []), "text")
+    return sd
+
+
 PRESETS = {
     "flow": flow,
     "row": lambda s: f"slide(Row({', '.join(things(s))}))",
     "cycle": lambda s: f"slide(Cycle([{', '.join(things(s))}]))",
-    "compare": lambda s: f"slide(Compare({js(s['left'])}, {js(s['right'])}))",
-    "stack": lambda s: f"slide(Stack({js(s['layers'])}{', { nest: true }' if s.get('nest') else ''}))",
-    "timeline": lambda s: f"slide(Timeline({js(s['steps'])}{', { down: true }' if s.get('down') else ''}))",
-    "bars": lambda s: f"slide(Bars({js(s['bars'])}))",
+    "compare": lambda s: f"slide(Compare({js(side(s['left']))}, {js(side(s['right']))}))",
+    "stack": lambda s: f"slide(Stack({js(with_drawings(s['layers'], 'label'))}{', { nest: true }' if s.get('nest') else ''}))",
+    "timeline": lambda s: f"slide(Timeline({js(with_drawings(s['steps'], 'what'))}{', { down: true }' if s.get('down') else ''}))",
+    "bars": lambda s: f"slide(Bars({js(with_drawings(s['bars'], 'label'))}))",
     "code": lambda s: f"slide(Code({js(s['code'])}, {js({k: s[k] for k in ('lang', 'link', 'caption') if k in s})}))",
     "terminal": lambda s: f"slide(Terminal({js(s['lines'])}))",
     "stat": lambda s: f"slide(Stat({js(s['value'])}, {js(s.get('label', ''))}, {js({k: s[k] for k in ('suffix', 'prefix', 'color') if k in s})}))",
