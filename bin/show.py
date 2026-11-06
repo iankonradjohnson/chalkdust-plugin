@@ -97,8 +97,10 @@ def flow(show):
 def side(sd):
     """A compare side with a drawing over its title, and each point a drawing and its words, where there's a drawing."""
     sd = dict(sd)
-    if "part" not in sd and drawing(str(sd.get("title", ""))):
-        sd["part"] = drawing(str(sd["title"]))
+    part = sd.pop("part", None) or drawing(str(sd.get("title", "")))
+    if part and isinstance(sd.get("title"), str):
+        # The title as a glyph: its drawing over its words, in the card's title font.
+        sd["title"] = Raw(f"Column(Part({js(part)}, {{ size: 's' }}), Text({js(sd['title'])}, {{ size: 'h1' }}))")
     sd["points"] = [p["text"] if isinstance(p, dict) and isinstance(p.get("text"), Raw) else p for p in with_drawings(sd.get("points", []), "text")]
     return sd
 
