@@ -4,7 +4,7 @@
   python3 show.py <project>                               writes scenes/<id>.html for every slide in shows.json
   python3 show.py <project> <slide id> '<show as JSON>'   writes one slide
 
-A show is {"preset": "flow", "things": ["Browser", "Server", "Database"]}. Each thing's drawing is found by its name,
+A show is {"preset": "flow", "things": ["Browser", "Server", "Database"], "verbs": ["asks", "queries"]}. Each thing's drawing is found by its name,
 and nothing is timed: the narration's marks bring each thing on and light it. Write the marked script first, then the
 shows after, one per slide (Ian, 2026-11-06: "Yes, that way"). For anything a preset can't draw, write the slide by hand.
 """
@@ -50,7 +50,9 @@ def things(show):
 def flow(show):
     t = things(show)
     names = [f"t{i}" for i in range(len(t))]
-    links = ", ".join(f"[{a}, {b}]" for a, b in zip(names, names[1:]))
+    # Each arrow can say its verb, like "asks": it lights when the narration marks it.
+    verbs = list(show.get("verbs", [])) + [None] * len(names)
+    links = ", ".join(f"[{a}, {b}{', ' + js(v) if v else ''}]" for (a, b), v in zip(zip(names, names[1:]), verbs))
     return "const " + ", ".join(f"{n} = {g}" for n, g in zip(names, t)) + f";\nslide(Flow([{links}]))"
 
 
