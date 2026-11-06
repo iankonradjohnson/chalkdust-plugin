@@ -50,12 +50,13 @@ def jsx(x):
     return js(x)
 
 
-def glyph_row(part, text):
-    """A drawing and its words side by side: everything is a glyph (Ian, 2026-11-06)."""
-    return Raw(f"Row(Part({js(part)}, {{ size: 's' }}), Text({js(text)}, {{ size: 'caption' }}))")
+def glyph_row(part, text, stacked=False):
+    """A drawing and its words, side by side or one over the other: everything is a glyph (Ian, 2026-11-06). Big, so
+    when the chart scales it to its slot, the two keep their proportions."""
+    return Raw(f"{'Column' if stacked else 'Row'}(Part({js(part)}, {{ size: 's' }}), Text({js(text)}, {{ size: 'h2' }}))")
 
 
-def with_drawings(items, key, whole=False):
+def with_drawings(items, key, whole=False, stacked=False):
     """Each item's words with a drawing found by its name, or the one it names with "part", as a glyph. whole: the
     item itself becomes the glyph (a stack layer); otherwise its words do (a point, a step, a bar's label)."""
     out = []
@@ -65,7 +66,7 @@ def with_drawings(items, key, whole=False):
         it = {key: it} if isinstance(it, str) else dict(it)
         part = it.pop("part", None) or drawing(str(it.get(key, "")))
         if part and isinstance(it.get(key), str):
-            row = glyph_row(part, it[key])
+            row = glyph_row(part, it[key], stacked)
             out.append(row if whole and set(it) <= {key} else {**it, key: row})
         else:
             out.append(it[key] if whole and set(it) <= {key} else it)
@@ -115,7 +116,7 @@ PRESETS = {
     "cycle": lambda s: f"slide(Cycle([{', '.join(things(s))}]))",
     "compare": lambda s: f"slide(Compare({jsx(side(s['left']))}, {jsx(side(s['right']))}))",
     "stack": lambda s: f"slide(Stack({jsx(with_drawings(s['layers'], 'label', whole=True))}{', { nest: true }' if s.get('nest') else ''}))",
-    "timeline": lambda s: f"slide(Timeline({jsx(with_drawings(s['steps'], 'what'))}{', { down: true }' if s.get('down') else ''}))",
+    "timeline": lambda s: f"slide(Timeline({jsx(with_drawings(s['steps'], 'what', stacked=not s.get('down')))}{', { down: true }' if s.get('down') else ''}))",
     "bars": lambda s: f"slide(Bars({jsx(bars(s['bars']))}))",
     "code": lambda s: f"slide(Code({js(s['code'])}, {js({k: s[k] for k in ('lang', 'link', 'caption') if k in s})}))",
     "terminal": lambda s: f"slide(Terminal({js(s['lines'])}))",
