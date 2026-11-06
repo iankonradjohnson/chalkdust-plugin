@@ -299,6 +299,17 @@ def cmd_parts(args):
         print("Nothing for that. Use a plain shape, or write an inline <svg> in the scene.")
 
 
+def cmd_show(args):
+    """Fill in a preset for a slide, or for every slide in shows.json: see show.py, which ships next to this command."""
+    sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+    import show
+    show.SHELF = PARTS or None
+    try:
+        show.main(["show", args.folder] + ([args.slide, args.show] if args.slide else []))
+    except ValueError as e:
+        sys.exit(f"show: {e}")
+
+
 def cmd_note(args):
     api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/note", {"text": args.text})
     answered(args.folder, args.question)
@@ -318,6 +329,7 @@ def main_with(argv):
     p = sub.add_parser("parts"); p.add_argument("words", nargs="+"); p.set_defaults(fn=cmd_parts)
     p = sub.add_parser("delete"); p.add_argument("folder"); p.add_argument("--yes", action="store_true"); p.set_defaults(fn=cmd_delete)
     p = sub.add_parser("note"); p.add_argument("folder"); p.add_argument("question"); p.add_argument("text"); p.set_defaults(fn=cmd_note)
+    p = sub.add_parser("show", help="fill in a preset for a slide"); p.add_argument("folder"); p.add_argument("slide", nargs="?"); p.add_argument("show", nargs="?"); p.set_defaults(fn=cmd_show)
     args = ap.parse_args(argv)
     try:
         args.fn(args)
