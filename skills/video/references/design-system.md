@@ -339,9 +339,9 @@ Who sends what to whom, in order: Sequence([browser, server], [[browser, server,
 
 ### `Connect(from, to, options)`
 
-An arrow between any two glyphs, even ones far apart. It leaves from an edge, and goes around what's between them.
+An arrow between any two glyphs, even ones far apart. It leaves from an edge, and goes around what's between them. stream: true sends a run of dots along it once it draws, for something that keeps flowing; stream: 3 sends three.
 
-Options: `color`, `label`, `travel`, `fromSide`, `toSide`.
+Options: `color`, `label`, `travel`, `stream`, `fromSide`, `toSide`.
 
 ### `Flow(links, options)`
 
@@ -389,7 +389,7 @@ Options: `color`, `enter`.
 
 ### `Stat(value, label, options)`
 
-A big number that counts up to its value when it comes on, with what it counts under it.
+A big number that counts up to its value when it comes on, with what it counts under it. .countTo(40) counts on from there to 40 on its word, [rises to forty](st.countTo).
 
 Options: `color`, `dec`, `enter`, `prefix`, `suffix`.
 
@@ -416,6 +416,54 @@ Options: `nest`, `enter`.
 This versus that, side by side: Compare({ title, points }, { title, points }).
 
 Options: `enter`.
+
+### `Equation(terms, options)`
+
+An equation, a term at a time: Equation(['A', '=', 'π', 'r²']), each term lit as it's said, [pi](eq.3).
+
+Options: `enter`.
+
+### `Cells(values, options)`
+
+Values in boxes with their indexes, the way code holds them: Cells([7, 3, 9, 4]), a cell by index, [first](arr.0). .sort() sorts it on its word, [sorts itself](arr.sort).
+
+Options: `index`, `enter`.
+
+### `Matrix(rows, options)`
+
+Rows of values: Matrix([[1, 2], [3, 4]]), lit by row, m.row-1, column, m.col-0, or cell, m.0-1.
+
+Options: `index`, `enter`.
+
+### `Scatter(points, options)`
+
+Points on two axes, a labeled one in blue, with its fitted line if trend: Scatter([[1, 2], { x, y, label }], { trend }).
+
+Options: `trend`, `enter`.
+
+### `Histogram(values, options)`
+
+How values spread, counted into bins: Histogram([1, 2, 2, 3], { bins }), a bin by number, [the middle](h.2).
+
+Options: `bins`, `color`, `enter`.
+
+### `Heatmap(rows, options)`
+
+A grid shaded by value: Heatmap([[0, 5], [10, 2]], { rows, cols }), lit by a row or column label, [Tuesday](hm.tue).
+
+Options: `rows`, `cols`, `values`, `enter`.
+
+### `Calls(spec, options)`
+
+Who calls whom, indented by depth, with a bar for each call's time: Calls(['main()', ['load()', 'read()'], { name, ms }]).
+
+Options: `enter`.
+
+### `Schema(tables, options)`
+
+Tables with their fields and the keys between them: Schema([{ name, fields }], { keys: [['orders.user_id', 'users.id']] }).
+
+Options: `keys`, `enter`.
 
 ### `Table(columns, rows, options)`
 

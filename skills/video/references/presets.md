@@ -34,6 +34,10 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-stack` | Stack |
 | `p-compare` | Compare |
 | `p-cycle` | Cycle |
+| `p-math` | Equation, Cells, Matrix |
+| `p-plots` | Scatter, Histogram, Heatmap |
+| `p-structure` | Calls, Schema |
+| `p-motion` | Stream, sort, countTo |
 
 ## f-trace Form: trace
 
@@ -293,3 +297,43 @@ slide(Cycle([plan, build, ship, learn]))
 ```
 
 A loop: [plan](plan), [build](build), [ship](ship), [learn](learn), and [back to plan](learn->plan).
+
+## p-math Equation, Cells, Matrix
+
+```js
+const area = Equation(['A', '=', 'π', 'r²']), list = Cells([7, 3, 9, 4]), grid = Matrix([[1, 2], [3, 4]])
+slide(Column(area, Row(list, grid)))
+```
+
+The [area](area.a) is [pi](area.3) times [r squared](area.r). A list keeps [nine](list.2) at [index two](list.2), and a matrix has [rows](grid.row-0) and [columns](grid.col-1).
+
+## p-plots Scatter, Histogram, Heatmap
+
+```js
+const sc = Scatter([[1, 2], [2, 3], [3, 3], { x: 4, y: 9, label: 'outlier' }, [5, 5]], { trend: true })
+const spread = Histogram([1, 2, 2, 3, 3, 3, 4, 4, 5], { bins: 5 })
+const week = Heatmap([[2, 8], [9, 3]], { rows: ['Mon', 'Tue'], cols: ['AM', 'PM'] })
+slide(Row(sc, Column(spread, week)))
+```
+
+The points [rise](sc.trend), but for [one outlier](sc.outlier). The values [bunch in the middle](spread.2), and [Tuesday](week.tue) is busy [in the morning](week.am).
+
+## p-structure Calls, Schema
+
+```js
+const calls = Calls([{ name: 'main()', ms: 420 }, [{ name: 'load()', ms: 310 }, { name: 'read()', ms: 40 }, { name: 'parse()', ms: 260 }], { name: 'render()', ms: 90 }])
+const db = Schema([{ name: 'users', fields: [{ name: 'id', type: 'int' }, 'email'] }, { name: 'orders', fields: ['id', 'user_id', 'total'] }], { keys: [['orders.user_id', 'users.id']] })
+slide(Column(calls, db))
+```
+
+The [main](calls.main) call spends its time in [load](calls.load), mostly in [parse](calls.parse). An [order](db.orders) points at its user through [user id](db.orders.user-id).
+
+## p-motion Stream, sort, countTo
+
+```js
+const app = Labeled('App', Part('phone', { size: 'm' })), api = Labeled('API', Part('server', { size: 'm' }))
+const list = Cells([7, 3, 9, 4]).sort(), users = Stat(12, 'users').countTo(40)
+slide(Column(Flow([[app, api, { label: 'events', stream: true }]]), Row(list, users)))
+```
+
+The [app](app) [keeps sending](app->api) events. The list [sorts itself](list.sort), and the [users](users) [climb to forty](users.countTo).
