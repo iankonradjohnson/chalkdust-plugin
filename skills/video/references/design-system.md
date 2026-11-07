@@ -505,7 +505,7 @@ Options: `title`, `enter`.
 
 Naming a piece in a link brings it on the first time and lights it after that, until the next thing lights: `[the server](server)`. A color or a light goes after a colon: `[trouble](server:red)`, `[look](server:spot)`. `[gone](-server)` hides it, `[here](+server)` shows it without a light, and `[all of it](*)` brings on everything not on yet. `a->b` is the line between two things: it draws, and a second mention sends something along it. A path points inside a piece: `steps.launch`, `code.2`, `code.2.token`, `trace.server`. Any word lights the same way, by its color until the next light: the piece, its part, then the word, `[605](bars.javascript-605-tests.605:green)`, `[pro](table.2.pro)`, and in plain text the piece then the word, `[fast](title.fast)`. Light words as they are said: the more that moves with the voice, the better.
 
-Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, `grow`, lift by default.
+Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, `grow`, `push`, `frame`, `drift`, lift by default.
 
 ### Moves a cast can give a piece
 
