@@ -9,7 +9,6 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | Preset | Shows |
 | --- | --- |
 | `f-trace` | Form: trace |
-| `f-states` | Form: states |
 | `f-reshape` | Form: reshape |
 | `f-race` | Form: race |
 | `f-barrier` | Form: barrier |
@@ -47,17 +46,6 @@ slide(trace)
 ```
 
 The [browser](trace.browser) asks the [server](trace.server), which asks the [database](trace.database).
-
-## f-states Form: states
-
-```js
-const machine = Form('states', {
-  states: [{ id: 'a', label: 'Idle', col: 0, row: 0 }, { id: 'b', label: 'Busy', col: 1, row: 0, color: 'yellow' }, { id: 'c', label: 'Done', col: 2, row: 0, color: 'green' }],
-  start: { state: 'a' }, steps: [{ from: 'a', to: 'b', label: 'start' }, { from: 'b', to: 'c', label: 'finish' }] })
-slide(machine)
-```
-
-[Idle](machine.idle), then [busy](machine.busy), then [done](machine.done).
 
 ## f-reshape Form: reshape
 
@@ -135,10 +123,12 @@ slide(Machine([[idle, busy, 'start'], [busy, done, 'finish'], [busy, idle, 'canc
 
 ```js
 const a = Part('browser', { size: 's' }), b = Part('server', { size: 's' }), c = Part('database', { size: 's' })
-slide(Sequence([a, b, c], [[a, b, 'GET /'], [b, c, 'query'], [c, b, 'rows', { reply: true }], [b, a, '200 OK', { reply: true }]]))
+slide(Sequence([a, b, c], [[a, b, 'GET /'], { note: 'checks the cache', on: b },
+  { loop: 'each page', messages: [[b, c, 'query'], [c, b, 'rows', { reply: true }]] },
+  { alt: [['found', [[b, a, '200 OK', { reply: true }]]], ['missing', [[b, a, '404', { reply: true }]]]] }]))
 ```
 
-The [browser](a) [asks](a->b) the server, which [queries](b->c) the database. The [rows come back](c->b), and the [page goes out](b->a).
+The [browser](a) [asks](a->b) the server, which checks its cache, then [queries](b->c) the database for each page. The [rows come back](c->b), and the [page goes out](b->a), or [a not found](b->a).
 
 ## p-data Dots, Bars, Stat
 

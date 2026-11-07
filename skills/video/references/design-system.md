@@ -301,7 +301,7 @@ Options: `size`, `enter`. `size` is one of `s`, `m`, `l`, `xl`.
 
 ### `Text(words, options)`
 
-Words on the slide, at one of the text sizes: Text('Ship it', { size: 'h1', color: 'green' }).
+Words on the slide, at one of the text sizes: Text('Ship it', { size: 'h1', color: 'green' }). The script lights one word by changing its color: [ship](title.ship:green).
 
 Options: `size`, `color`, `link`, `enter`. `size` is one of `big`, `h1`, `h2`, `h3`, `caption`. `color` is any color name.
 
@@ -335,7 +335,7 @@ Options: `start`, `color`, `direction`.
 
 ### `Sequence(actors, messages, options)`
 
-Who sends what to whom, in order: Sequence([browser, server], [[browser, server, 'GET /'], [server, browser, '200', { reply: true }]]). Actors stand across the top with lifelines down. Each message is an arrow on its own row, with its words above it; a reply is dashed, and a message to itself loops back. Each comes in when the script names it, [asks](browser->server), the next between the same two the next time it's named, or else after the last.
+Who sends what to whom, in order: Sequence([browser, server], [[browser, server, 'GET /'], [server, browser, '200', { reply: true }]]). Actors stand across the top with lifelines down. Each message is an arrow on its own row, with its words above it; a reply is dashed, and a message to itself loops back. Each comes in when the script names it, [asks](browser->server), the next between the same two the next time it's named, or else after the last. Boxes go around messages: { loop: 'each page', messages: [...] }, { opt: 'logged in', messages: [...] }, and alternatives, { alt: [['found', [...]], ['missing', [...]]] }, each drawn on with its first message. { note: 'words', on: actor } is a note on that actor's line, in a row of its own.
 
 ### `Connect(from, to, options)`
 
@@ -425,15 +425,15 @@ Options: `enter`.
 
 ### `Code(source, options)`
 
-Real code, highlighted: Code(source, { lang, caption, link }). The script lights a line, [reads](code.2), or a word on it, [db](code.2.db).
+Real code, highlighted: Code(source, { lang, file, caption, link }). file names it in a bar across the top; caption describes it underneath. The script lights a line, [reads](code.2), or a word on it, [db](code.2.db).
 
-Options: `lang`, `link`, `caption`, `enter`.
+Options: `lang`, `link`, `caption`, `file`, `enter`.
 
 ### `Diff(before, after, options)`
 
 The change between two versions of some code: Diff(before, after, { lang }). It's drawn as Code is. Lines that stay are shown once; a line taken out is signed with a minus and a line put in with a plus. When the script says, [the fix](diff.change), or just after it appears, the old lines go red and fade, and the new ones come in green.
 
-Options: `lang`, `link`, `caption`, `enter`.
+Options: `lang`, `link`, `caption`, `file`, `enter`.
 
 ### `Files(paths, options)`
 
@@ -443,7 +443,7 @@ Options: `added`, `removed`, `enter`.
 
 ### `Terminal(entries, options)`
 
-A terminal: Terminal([{ cmd: 'npm test' }, { out: '12 passing', color: 'green' }], { title: 'zsh' }), or plain text where lines starting with $ are commands. Each command types out at the prompt when the script names it, by number, [run the tests](term.1), or after the entry before, and the lines it prints come in once it's typed. Copying copies just the commands.
+A terminal: Terminal([{ cmd: 'npm test' }, { out: '12 passing', color: 'green' }], { title: 'zsh' }), or plain text where lines starting with $ are commands. Each command types out at the prompt when the script names it, by number, [run the tests](term.1), or after the entry before, and the lines it prints come in once it's typed. Named again, a line fills its row; a word on it lights in its link's color, [push](term.3.push:green). Copying copies just the commands.
 
 Options: `title`, `color`, `enter`.
 
@@ -478,7 +478,6 @@ Each returns the piece, so they chain: `Text('v1').swap('v2')`. A move is named 
 Ready-made ways to explain code, as one piece: `Form(kind, data)`. Each fills the stage. Its moments are parts the script names, like `trace.server`; see scene-authoring.md.
 
 - `Form('trace', data)`: Something moves through a system and changes as it goes. Form('trace', { lang, hops: [{ label, icon, carry, job, code, file }] }), each hop a moment: trace.server
-- `Form('states', data)`: Something moves between states. The current state stays lit. Form('states', { lang, code, states: [{ id, label, col, row, color }], start: { state, line }, steps: [{ from, to, label, line, fromSide, toSide }] }), each step a moment named by the state it goes to: states.busy
 - `Form('reshape', data)`: One data shape becomes another. Each target field names the source field it came from. Form('reshape', { via, from: { title, fields: [{ name, value }] }, to: { title, fields: [{ name, value, from }] } }), with the moments from, to, keep, rename, add and drop
 - `Form('race', data)`: Things happen at the same time, and the order decides the outcome. Call it twice to compare two runs. Form('race', { top, lanes: ['A', 'B'], span: 10, shared: { label, values: [{ x, text, bad }] }, events: [{ lane, x, label, kind: 'read' | 'write' | 'bad' | 'good' }], holds: [{ lane, x1, x2 }], verdict: { text, color } }), with the moments start, end and verdict
 - `Form('barrier', data)`: Separate attempts stopped at a wall, each protecting something. A row with pass: true gets through. Form('barrier', { source: { label, icon }, wall: 'sandbox', rows: [{ attempt, target, why, pass }] }), each row a moment named by its target: barrier.disk

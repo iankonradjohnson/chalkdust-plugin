@@ -106,7 +106,7 @@ Five ready-made ways to explain how code behaves, as one piece: `Form(kind, data
 | The explanation is about | Form | Its moments |
 | --- | --- | --- |
 | Something moving through a system and changing on the way | `Form('trace', { hops: [{ label, icon, carry, job, code }] })` | each hop by its label: `trace.server` |
-| Something in one state at a time, and what moves it | `Form('states', { states, start, steps })` | each step by the state it goes to: `states.busy` |
+| Something in one state at a time, and what moves it | `Machine([[idle, busy, 'start']], { start: idle })` | each state as it's named: `busy` |
 | One data shape becoming another | `Form('reshape', { via, from, to })` | `from`, `to`, `keep`, `add`, `rename`, `drop` |
 | Two things at once, where the order decides | `Form('race', { lanes, span, events, verdict })` | `start`, `end`, `verdict` |
 | Attempts stopped at a wall, like security checks | `Form('barrier', { source, wall, rows })` | each row by its target: `barrier.disk` |
