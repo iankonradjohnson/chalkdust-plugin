@@ -455,7 +455,7 @@ Options: `title`, `enter`.
 
 ### What the script does with a piece
 
-Naming a piece in a link brings it on the first time and lights it after that, until the next thing lights: `[the server](server)`. A color or a light goes after a colon: `[trouble](server:red)`, `[look](server:spot)`. `[gone](-server)` hides it, `[here](+server)` shows it without a light, and `[all of it](*)` brings on everything not on yet. `a->b` is the line between two things: it draws, and a second mention sends something along it. A path points inside a piece: `steps.launch`, `code.2`, `code.2.token`, `trace.server`.
+Naming a piece in a link brings it on the first time and lights it after that, until the next thing lights: `[the server](server)`. A color or a light goes after a colon: `[trouble](server:red)`, `[look](server:spot)`. `[gone](-server)` hides it, `[here](+server)` shows it without a light, and `[all of it](*)` brings on everything not on yet. `a->b` is the line between two things: it draws, and a second mention sends something along it. A path points inside a piece: `steps.launch`, `code.2`, `code.2.token`, `trace.server`. Any word lights the same way, by its color until the next light: the piece, its part, then the word, `[605](bars.javascript-605-tests.605:green)`, `[pro](table.2.pro)`, and in plain text the piece then the word, `[fast](title.fast)`. Light words as they are said: the more that moves with the voice, the better.
 
 Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, lift by default.
 
@@ -463,6 +463,8 @@ Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, lift
 
 Each returns the piece, so they chain: `Text('v1').swap('v2')`. A move is named by its kind, a second of the same kind by its number (`swap-2`), and the script says when: `[ships](label.swap)`. `enter` in a piece's options picks its entrance.
 
+- `.wordPart(path)`: A word in a part: the part, then the word, [605](time.javascript-605-tests.605) (Ian, 2026-11-07: "all words should have the ability to light up on their own"). The longest part that fits comes first. null if no part fits.
+- `.partNode(key)`: (no description in the code)
 - `.badge(name, options = {})`: Pins a small drawing to a corner, so one drawing covers its variants: a person with a check, a shield with a padlock. It pops in just after the drawing, or when the script names it: [approved](person.check).
 - `.morph(styles, options = {})`: Change how it looks: morph({ color: 'green', scale: 1.1 }). The script says when: [fixed](box.morph).
 - `.moveTo(other, options = {})`: Travel to where another glyph is: moveTo(other). The script says when: [moves over](chip.moveTo).
