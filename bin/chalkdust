@@ -5,17 +5,17 @@
   chalkdust publish <folder>                  upload scenes, wait for the build, print the links, warnings and stills
   chalkdust parts <words>                     search our drawings, to use with data-part="name" in a scene
   chalkdust watch <folder>                    block until a question arrives, print it, exit (run in the background; also exits if nobody's watching)
-  chalkdust stream <folder> <question> <slide> "<title>" "<narration>"
-                                              publish one beat of an answer while the viewer watches; checks come back in seconds
-  chalkdust stream <folder> <question> --fix <slide>   after correcting a slide already published; adds no beat
-  chalkdust stream <folder> <question> --done          finish the streamed answer, and check all of it
+  chalkdust stream <folder> <question>        publish the answer in <folder>/answers/<question>/video.md as it is now: run it
+                                              after each beat you add, while the viewer watches; checks come back in seconds
+  chalkdust stream <folder> <question> --done  finish the streamed answer, and check all of it
   chalkdust answer <folder> <question>        upload <folder>/answers/<question>/, wait for the build, print stills
   chalkdust release <folder> <question>       show that answer in the player, once its stills look right
   chalkdust note <folder> <question> "text"   leave a one-line reply instead of an answer
   chalkdust comments <folder>                 print every comment left on the video, with its moment
   chalkdust delete <folder> --yes             permanently delete the video and everything about it from the service
 
-<folder> holds scenes.json, scenes/<id>.html and, optionally, assets/, the same as a local project.
+<folder> holds video.md and, optionally, assets/: each slide a ## heading, a ```js cast of what's on screen, and the
+script, with each action on its word, as [the server](server). An answer is the same, in answers/<question>/.
 The video's id is saved in <folder>/.chalkdust.json, so publishing again updates the same video and link.
 """
 import argparse, base64, getpass, json, os, shutil, socket, sys, time, urllib.error, urllib.request, webbrowser
@@ -65,13 +65,12 @@ def video_id(folder):
 
 
 def read_sources(folder):
-    files = {}
-    if not os.path.exists(os.path.join(folder, "scenes.json")):
-        sys.exit(f"No scenes.json in {folder}")
-    for name in ["scenes.json"] + [f"{sub}/{f}" for sub in ("scenes", "assets") if os.path.isdir(os.path.join(folder, sub)) for f in sorted(os.listdir(os.path.join(folder, sub)))]:
-        if os.path.isfile(os.path.join(folder, name)) and not os.path.basename(name).startswith("."):
-            files[name] = base64.b64encode(open(os.path.join(folder, name), "rb").read()).decode()
-    return {"files": files}
+    """video.md and any assets, as the service takes them."""
+    if not os.path.exists(os.path.join(folder, "video.md")):
+        sys.exit(f"Write {os.path.join(folder, 'video.md')} first: a ## heading, a cast and a script for each slide")
+    assets = os.path.join(folder, "assets")
+    names = ["video.md"] + ([f"assets/{f}" for f in sorted(os.listdir(assets)) if not f.startswith(".") and os.path.isfile(os.path.join(assets, f))] if os.path.isdir(assets) else [])
+    return {"files": {name: base64.b64encode(open(os.path.join(folder, name), "rb").read()).decode() for name in names}}
 
 
 def wait_for_build(route):
@@ -238,21 +237,9 @@ def cmd_answer(args):
     print(f"When the stills look right: chalkdust release {args.folder} {args.question}")
 
 
-def beat_files(folder, slide):
-    """The slide as it is now, and any assets. Each beat sends the whole slide, so the graphic grows."""
-    scene = os.path.join(folder, "scenes", slide + ".html")
-    if not os.path.isfile(scene):
-        sys.exit(f"Write {scene} first: scenes/{slide}.html holds the slide this beat plays on.")
-    names = [f"scenes/{slide}.html"]
-    assets = os.path.join(folder, "assets")
-    if os.path.isdir(assets):
-        names += [f"assets/{f}" for f in sorted(os.listdir(assets)) if not f.startswith(".") and os.path.isfile(os.path.join(assets, f))]
-    return {name: base64.b64encode(open(os.path.join(folder, name), "rb").read()).decode() for name in names}
-
-
 def print_warnings(warnings):
     for w in warnings:
-        print(w if w.startswith("look:") else "warning: " + w)
+        print("warning: " + w)
 
 
 def cmd_stream(args):
@@ -265,21 +252,10 @@ def cmd_stream(args):
             answered(args.folder, args.question)
             print("done: the answer is complete")
             print_warnings(result.get("warnings", []))
-            stills = save_stills(result, f"/api/videos/{vid}/questions/{args.question}/stills", folder)
-            if stills:
-                print("stills of the slides placed by hand, to check:", *stills, sep="\n  ")
             return
-        if args.fix:
-            result = api("POST", route + "/fix", {"slide": args.fix, "files": beat_files(folder, args.fix)}, timeout=300)
-            print(f"live: {args.fix}, fixed")
-            print_warnings(result.get("warnings", []))
-            return
-        if len(args.beat) != 3:
-            sys.exit('Usage: chalkdust stream <folder> <question> <slide id> "<slide title>" "<narration>"  (or --fix <slide id>, or --done)')
-        slide, title, say = args.beat
-        result = api("POST", route, {"slide": slide, "title": title, "say": say, "files": beat_files(folder, slide)}, timeout=300)
+        result = api("POST", route, read_sources(folder), timeout=300)
     except Unreachable as e:
-        sys.exit(f"{e}\nThis may not have been published. Run the same command again: a beat that already went out isn't added twice.")
+        sys.exit(f"{e}\nThis may not have been published. Run the same command again: beats already published aren't added twice.")
     print(f"live: {result['live']}, beat {result['beat']}, in {result['seconds']:.1f}s")
     print_warnings(result.get("warnings", []))
 
@@ -299,17 +275,6 @@ def cmd_parts(args):
         print("Nothing for that. Use a plain shape, or write an inline <svg> in the scene.")
 
 
-def cmd_show(args):
-    """Fill in a preset for a slide, or for every slide in shows.json: see show.py, which ships next to this command."""
-    sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-    import show
-    show.SHELF = PARTS or None
-    try:
-        show.main(["show", args.folder] + ([args.slide, args.show] if args.slide else []))
-    except ValueError as e:
-        sys.exit(f"show: {e}")
-
-
 def cmd_note(args):
     api("POST", f"/api/videos/{video_id(args.folder)}/questions/{args.question}/note", {"text": args.text})
     answered(args.folder, args.question)
@@ -324,12 +289,11 @@ def main_with(argv):
         p = sub.add_parser(name); p.add_argument("folder"); p.set_defaults(fn=fn)
     for name, fn in (("answer", cmd_answer), ("release", cmd_release)):
         p = sub.add_parser(name); p.add_argument("folder"); p.add_argument("question"); p.set_defaults(fn=fn)
-    p = sub.add_parser("stream"); p.add_argument("folder"); p.add_argument("question"); p.add_argument("beat", nargs="*", help='<slide id> "<slide title>" "<narration>"')
-    p.add_argument("--fix", metavar="SLIDE", help="publish a corrected slide again, adding no beat"); p.add_argument("--done", action="store_true", help="finish the answer"); p.set_defaults(fn=cmd_stream)
+    p = sub.add_parser("stream"); p.add_argument("folder"); p.add_argument("question")
+    p.add_argument("--done", action="store_true", help="finish the answer"); p.set_defaults(fn=cmd_stream)
     p = sub.add_parser("parts"); p.add_argument("words", nargs="+"); p.set_defaults(fn=cmd_parts)
     p = sub.add_parser("delete"); p.add_argument("folder"); p.add_argument("--yes", action="store_true"); p.set_defaults(fn=cmd_delete)
     p = sub.add_parser("note"); p.add_argument("folder"); p.add_argument("question"); p.add_argument("text"); p.set_defaults(fn=cmd_note)
-    p = sub.add_parser("show", help="fill in a preset for a slide"); p.add_argument("folder"); p.add_argument("slide", nargs="?"); p.add_argument("show", nargs="?"); p.set_defaults(fn=cmd_show)
     args = ap.parse_args(argv)
     try:
         args.fn(args)

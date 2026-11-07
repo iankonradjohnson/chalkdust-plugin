@@ -14,7 +14,7 @@ Match the explanation to what the user already knows, and prefer concrete code a
 - **Show, don't list.** If a scene is a list of boxes with sentences in them, redesign it as a diagram.
 - One idea per scene. Captions already show the narration, so never repeat it as on-screen text.
 - **Prefer real code with animated line highlights** for anything about how code behaves. Keep blocks under about 12 lines.
-- **Make things look like what they are.** Use real icons, not emoji, large enough to read, with panels and browser frames. Pick entrances by meaning, send the same element somewhere with `K.move` rather than popping in a copy, and land animations on the spoken word with `at.word`. The scene guide has all of these.
+- **Make things look like what they are.** Use our drawings, not emoji, large enough to read. Send the same piece somewhere with `moveTo` rather than popping in a copy, and land every change on the word that says it, with a link. The scene guide has all of these.
 
 ## Before the first publish
 
@@ -29,19 +29,29 @@ Never ask for a key in chat, and never run `chalkdust login <key>` with a key yo
 ## Making a video
 
 1. **Plan scenes.** One scene per idea, usually 25–60 seconds each, with the length set by the concept or by what the user asks for. Narration runs at about 2.4 words per second, so a one-minute video is about 145 words. Lead with the user's actual question, use real code from the repo, and finish with a recap.
-2. **Write the project** in a folder outside the repo, such as `~/chalkdust/<slug>/`, unless the user names another: `scenes.json`, `scenes/<id>.html` and, if needed, `assets/`. Read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/design-system.md` first: every color, size, layout, drawing, piece, `K` helper, form and transition there is, so use what it names rather than plain boxes. Then start each slide from the closest preset in `${CLAUDE_PLUGIN_ROOT}/skills/video/references/presets.md`: a tested scene for every form and piece, to copy and change. Then read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/scene-authoring.md`. It has the timing rules, building blocks, layout grid, diagrams, images and links. `${CLAUDE_PLUGIN_ROOT}/skills/video/examples/demo/` is a short complete project to copy from. Write narration in plain, short sentences, and land each animation on the sentence that describes it. Mark what to show: put backticks around a word in the narration, like "and `Flow` builds along its arrows", and what it names on screen (a name in the code, or a caption) lights as it's said. The voice and captions get the plain words. When you show code from a repository you can reach on GitHub, give `Code` its `link` to the file (`https://github.com/owner/repo/blob/<branch>/<path>#L<line>`): the block shows the file's name and opens it, so prefer that to naming the file in the narration.
-   **The fast way: the marked script first, then fill in presets.**
-   - Write `scenes.json` first, every slide's title and narration, with the things to show marked in backticks (about one a sentence, and the first mention of each thing). This needs the most thought, so write it yourself.
-   - Then fill in each slide. For most, a preset is enough: `chalkdust show ~/chalkdust/<slug> <slide id> '{"preset": "flow", "things": ["Browser", "Server", "Database"]}'` writes `scenes/<id>.html`, with each thing's drawing found by its name. Presets: `flow` (`things`, and `verbs` for the words on its arrows), `row`, `cycle` (`things`), `compare` (`left`, `right`), `stack` (`layers`, `nest`), `timeline` (`steps`, `down`), `bars`, `code` (`code`, `lang`, `link`), `terminal` (`lines`) and `stat`. Layers, steps, points and bars become a drawing and its words, as glyphs, when a drawing fits their name. By hand, any slot in a chart takes any glyph, like `Row(Part('check'), Text('token comes back'))`. Use drawings as much as you can. Or put every slide's show in `shows.json` as `{ "<slide id>": { "preset": ... } }` and run `chalkdust show ~/chalkdust/<slug>`.
-   - Slides are independent once the script is written, so hand them to Sonnet subagents in parallel, one per slide, each with that slide's marked narration and the list of presets. Nothing in a preset is timed: the marks do that.
-   - For anything a preset can't draw, like a custom drawing, write that slide by hand.
+2. **Write the video** in a folder outside the repo, such as `~/chalkdust/<slug>/`, unless the user names another: one file, `video.md`, and `assets/` for any images. Each slide is a `## heading`, a `js` block that says what can be on screen with no timing in it (the cast), and the narration under it, where each action sits on the word it happens on (the script):
+
+   ````md
+   # How login works
+
+   ## s01 Signing in
+
+   ```js
+   const user = Part('browser'), app = Part('server'), db = Part('database')
+   slide(Sequence([user, app, db], [[user, app, 'sign in'], [app, db, 'lookup']]))
+   ```
+
+   The [user](user) [signs in](user->app), and the [server](app) [checks the database](app->db db:red).
+   ````
+
+   A link names what happens on its words: `name` brings it on, then lights it; `name:red` or `name:spot` lights it in a color or with the spotlight; `-name` hides it; `a->b` draws the line between two things, and sends something along it the next time; `name.part` points inside a piece, like `code.2`, `steps.launch` or `trace.server`; `name.swap` runs a move the cast gave it. Write the narration first, every slide's words, with about one thing to show a sentence: that's the part that needs the most thought. Then add the casts and the links over the same words. Read `${CLAUDE_PLUGIN_ROOT}/skills/video/references/presets.md`: a tested slide for every piece and form, cast and script, to copy and change. `${CLAUDE_PLUGIN_ROOT}/skills/video/references/design-system.md` lists every color, drawing, piece and option, with the parts each piece has, and `${CLAUDE_PLUGIN_ROOT}/skills/video/references/scene-authoring.md` has the rest of the grammar and how to choose a picture. `${CLAUDE_PLUGIN_ROOT}/skills/video/examples/demo/video.md` is a short complete video to copy from. Use drawings (`chalkdust parts <words>`) rather than words wherever you can. When you show code from a repository you can reach on GitHub, give `Code` its `link` to the file (`https://github.com/owner/repo/blob/<branch>/<path>#L<line>`): the block shows the file's name and opens it, so prefer that to naming the file in the narration.
 
 3. **Publish:**
    ```bash
    chalkdust publish ~/chalkdust/<slug>
    ```
-   This uploads the scenes, waits for the narration and build, and prints any warnings, the stills and two links. Publishing the same folder again updates the same video and links. It saves `.chalkdust.json`, which holds the private owner link, and `.chalkdust/` in the folder. If the folder is inside a repo, add both to `.gitignore`.
-4. **Check the stills.** Read every sheet it lists. They show each scene near its end, fully built, so also think through the order things appear. If it says no stills because a scene didn't load, fix that scene, because it's blank in the player too. If it says the problem is on the service, tell the user you couldn't check the visuals. Look for text wrapping in pills, arrows crossing boxes or labels, notes overlapping, and content running into the caption zone. Count the words on screen. Fix them and publish again. Work presented as finished that still has flaws loses trust, so look properly. If a warning says the spoken text differs from the script, read it: small differences are fine, but a line where the voice says something else isn't. Reword that line and publish again.
+   This uploads `video.md`, waits for the narration and build, and prints any warnings, the stills and two links. Publishing the same folder again updates the same video and links. It saves `.chalkdust.json`, which holds the private owner link, and `.chalkdust/` in the folder. If the folder is inside a repo, add both to `.gitignore`.
+4. **Check the stills and the warnings.** A link to something the cast doesn't have, or a slide that was never named, comes back as a warning: fix it in `video.md`. A file that can't be read at all is refused with its slide and line. Read every sheet it lists. They show each scene near its end, fully built, so also think through the order things appear. If it says no stills because a scene didn't load, fix that scene, because it's blank in the player too. If it says the problem is on the service, tell the user you couldn't check the visuals. Look for text wrapping in pills, arrows crossing boxes or labels, notes overlapping, and content running into the caption zone. Count the words on screen. Fix them and publish again. Work presented as finished that still has flaws loses trust, so look properly. If a warning says the spoken text differs from the script, read it: small differences are fine, but a line where the voice says something else isn't. Reword that line and publish again.
 5. **Start the watcher, then give the user the link:**
    ```bash
    chalkdust watch ~/chalkdust/<slug>       # background task
@@ -60,21 +70,18 @@ When it wakes you:
 
 1. **Restart the watcher first,** in the background, so a second question isn't missed. Always read what it printed. A question it claimed that nobody answered comes back under `REMINDER:` once three minutes pass with nothing written for it, every time the watcher starts, until you answer it (`chalkdust stream ... --done` or `release`), or note it with `chalkdust note` if it needs no answer.
 2. Read the context. Check the code if the answer depends on facts.
-3. **Stream the answer,** so the viewer starts hearing it after its first sentence instead of waiting for the whole clip. For each beat, in one Bash call, write the slide in `answer_folder` and publish it:
+3. **Stream the answer,** so the viewer starts hearing it after its first sentence instead of waiting for the whole clip. The answer is a `video.md` in `answer_folder`, written as `# Answer` and slides like `## a01 <a title that makes sense on its own>`. Write the first slide, with one paragraph of script, and publish it:
    ```bash
-   cat > <answer_folder>/scenes/a01.html <<'SCENE'
-   <script>slide(...)</script>
-   SCENE
-   chalkdust stream ~/chalkdust/<slug> <question id> a01 "Slide title" "One or two sentences of narration."
+   chalkdust stream ~/chalkdust/<slug> <question id>
    ```
-   The service narrates and builds that beat, and the player starts the answer about a second after the first one lands. The command prints `live:` and what the checks found on that slide. Slide ids like `a01` only need to be unique within that answer, and a nested answer gets its own `answer_folder`, so use the path you're given. Give each slide a title that makes sense on its own.
-   - To grow the graphic, use the same slide id, and write the whole slide again with the new piece added. Use a new id for a new idea. Write slides with the layouts in the authoring guide, and point at what you're talking about.
+   The service narrates and builds what's new, and the player starts the answer about a second after the first beat lands. The command prints `live:` and what the checks found on the newest slide. Then add the next beat, a paragraph under the same slide or a new `## a02` slide, and run the same command again: only the new beat is narrated. A nested answer gets its own `answer_folder`, so use the path you're given.
+   - To grow the graphic, add to the slide's cast and link the new piece in the new paragraph.
    - The first sentence answers the question and makes sense by itself, as in "Because the wait doubles, so a fixed amount stops mattering." Don't re-explain the whole scene. If the question comes back a second time, go deeper and slower, not shorter.
-   - Published beats can't be taken back, so say only what you've checked. If a beat fails to build, the viewer sees no change: fix it and run the command again. If the command can't reach the service, run the same command again, because a beat that already went out isn't added twice.
-   - While someone's waiting, don't stop for pictures. Fix what the checks flag by writing the slide again and running `chalkdust stream ~/chalkdust/<slug> <question id> --fix a01`, which adds no beat. If the player catches up with you, it waits and tells the viewer.
-4. Finish with `chalkdust stream ~/chalkdust/<slug> <question id> --done`. It checks the whole answer and takes stills of any slide placed by hand, which the beats name as they go. Read those, and fix any slide that needs it with `--fix`.
+   - A beat once played can't change or go, so say only what you've checked, and only add after it. A cast can be corrected and sent again, which adds no beat. If a beat fails to build, the viewer sees no change: fix it and run the command again. If the command can't reach the service, run it again: what already went out isn't added twice.
+   - While someone's waiting, don't stop for pictures. Fix what the checks flag and keep going. If the player catches up with you, it waits and tells the viewer.
+4. Finish with `chalkdust stream ~/chalkdust/<slug> <question id> --done`, which checks the whole answer.
 
-When nobody's waiting, or an answer needs a full plan first, you can build it whole instead: write `scenes.json` and `scenes/<id>.html` in `answer_folder`, run `chalkdust answer ~/chalkdust/<slug> <question id>`, read the stills it lists, then run `chalkdust release ~/chalkdust/<slug> <question id>`. Use the kicker `Answer · <time> · "<short quote of the question>"`. That takes a couple of minutes before the viewer sees anything.
+When nobody's waiting, or an answer needs a full plan first, you can build it whole instead: write the whole `video.md` in `answer_folder`, run `chalkdust answer ~/chalkdust/<slug> <question id>`, read the stills it lists, then run `chalkdust release ~/chalkdust/<slug> <question id>`. That takes a couple of minutes before the viewer sees anything.
 
 If a comment isn't a question, such as a statement or "got it, never mind", leave one line instead of a video:
 
@@ -92,7 +99,7 @@ Run `chalkdust comments ~/chalkdust/<slug>` when the user says they've left comm
 
 ## Editing
 
-Edit the files and publish again. Changing narration shifts the timeline, so older comments point at old timestamps, though they keep their scene and caption text.
+Edit `video.md` and publish again. Changing narration shifts the timeline, so older comments point at old timestamps, though they keep their scene and caption text.
 
 ## Deleting
 

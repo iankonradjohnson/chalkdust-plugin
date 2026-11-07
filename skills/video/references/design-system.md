@@ -1,12 +1,12 @@
 # The design system
 
-Read this first, before writing any scene. It lists everything a scene can use: every color, size, font and text class, every layout, every drawing, every piece a slide is made of with its options, every `K` helper and form, and the transitions. Diagrams are drawn with our own pieces: `Flow`, `Sequence` and `Machine`. `scene-authoring.md` says how to put them together.
+Read this first, before writing a video. It lists everything a slide can use: every color, text size, drawing, piece with its options and parts, move and form. `scene-authoring.md` says how to put them together, and `presets.md` has a tested slide for each piece.
 
-It is generated from the code by `scripts/design_system.js`, so if something is here it exists, and if it isn't here it doesn't. Use what is here rather than drawing plain boxes: a folder is `Part('folder')` or `data-part="folder"`, not a rectangle.
+It is generated from the code by `scripts/design_system.js`, so if something is here it exists, and if it isn't here it doesn't. Use what is here rather than words in boxes: a folder is `Part('folder')`.
 
 ## Colors
 
-One set of names, in every theme and every place: `var(--name)` in CSS, `.c-name` for text, `K.light(el, { color: 'name' })`, and a piece's `color` option. Name a color, never write a hex value, so light and dark both work. Prefer the brand's accents (`blue`, `green`, `yellow`, `red`) and the screen's own `ink`, `muted`, `surface` and `line`; the drawing colors are for the rare hand-drawn shape.
+One set of names, everywhere: a piece's `color` option, and a link's light, like `[trouble](server:red)`. Name a color, never write a hex value, so light and dark both work. Prefer the brand's accents (`blue`, `green`, `yellow`, `red`) and the screen's own `ink`, `muted`, `surface` and `line`; the drawing colors are for the rare hand-drawn shape.
 
 | Name | Slate (dark) | Chalk (light) | Kind |
 | --- | --- | --- | --- |
@@ -49,9 +49,9 @@ One set of names, in every theme and every place: `var(--name)` in CSS, `.c-name
 | `skin` | #f0c6a0 | #f0c6a0 | drawing |
 | `amber` | #F5D76E | #E9BE3C | same as yellow |
 
-A project is Slate (dark) unless a file called `theme` says `light` (Chalk) or `navy`, the old look, which changes the screen colors `bg`, `surface`, `line`, `ink`, `muted`, `blue`, `yellow`, `red`, `green`, `yellow-text` and adds `--bg-image` and `--panel`. `.c-yellow` and `.c-amber` use `yellow-text`, which stays readable on Chalk.
+A project is Slate (dark) unless a file called `theme` says `light` (Chalk) or `navy`, the old look, which changes the screen colors `bg`, `surface`, `line`, `ink`, `muted`, `blue`, `yellow`, `red`, `green`, `yellow-text`.
 
-## Fonts and text
+## Fonts and text sizes
 
 | Variable | Font |
 | --- | --- |
@@ -59,79 +59,19 @@ A project is Slate (dark) unless a file called `theme` says `light` (Chalk) or `
 | `--title` | Fraunces, Georgia, serif |
 | `--code` | "JetBrains Mono", ui-monospace, Menlo, monospace |
 
-| Class | For | CSS |
+`Text(words, { size })` takes one of these:
+
+| Size | For | CSS |
 | --- | --- | --- |
-| `.big` | one huge number or word | `font-size: 160px; font-weight: 800; line-height: 1.05;` |
-| `.h1` | the slide's main words | `font-size: 84px; font-weight: 800; line-height: 1.1; letter-spacing: -.02em;` |
-| `.h2` | a heading | `font-size: 62px; font-weight: 700; line-height: 1.15;` |
-| `.h3` | a label under a drawing | `font-size: 46px; font-weight: 600; line-height: 1.2;` |
-| `.caption` | a quiet line | `font-size: 32px; font-weight: 500; color: var(--muted);` |
-| `.small` | small grey text | `font-size: 21px; color: var(--muted);` |
-| `.mono` | code font | `font-family: var(--code);` |
-| `.g-serif` | Fraunces, as titles use it | `font-family: var(--title); font-variation-settings: 'opsz' 96, 'SOFT' 100, 'WONK' 0;` |
-| `.mark` | a word pointed at, in the accent (add `.c-green` or another for another color) | `color: var(--blue); font-weight: 700;` |
-
-Text colors: `.c-<color>` for any color above, like `.c-blue`, `.c-red` or `.c-muted`.
-
-## Sizes
-
-A drawing (`data-part`) or icon (`data-icon`) takes one size class. `Part(name, { size })` takes the same names.
-
-| Class | Width and height |
-| --- | --- |
-| `.s` | 170px |
-| `.m` | 290px |
-| `.l` | 430px |
-| `.xl` | 620px |
-
-## Layouts
-
-Inside `.slide`, which fills the area under the title and centers what it holds. Too much in a layout shrinks to fit.
-
-| Class | For | CSS |
-| --- | --- | --- |
-| `.slide` | the area under the title | `position: absolute; left: 100px; right: 100px; top: 190px; bottom: 130px; display: flex; flex-direction: column; gap: 36px; align-items: center; justify-content: center; text-align: center;` |
-| `.across` | a row | `display: flex; gap: 48px; align-items: center; justify-content: center;` |
-| `.far` | a row with room for arrows | `gap: 170px;` |
-| `.down` | a column | `display: flex; flex-direction: column; gap: 28px; align-items: center; justify-content: center;` |
-| `.grid` | equal columns, 3 by default | `display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 32px; align-items: center; justify-items: center;` |
-| `.n2` | 2 columns in a grid | `--n: 2;` |
-| `.n4` | 4 columns | `--n: 4;` |
-| `.n5` | 5 columns | `--n: 5;` |
-| `.left` | left-aligned (with `.slide` or `.down`) | `align-items: flex-start; text-align: left; justify-content: flex-start;` |
-| `.wide` | the full width | `width: 100%;` |
-| `.fill` | the leftover room | `flex: 1; min-width: 0;` |
-| `.layer` | a full-stage wrapper | `position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;` |
-
-## Building blocks
-
-| Class | For | CSS |
-| --- | --- | --- |
-| `.card` | the card: a slate panel, no border, with an `<h3>` title in Fraunces. `.amber` lit, `.green` done, `.red` trouble, each a thin outline | `position: absolute; background: var(--surface); border: 0; border-radius: var(--r); padding: 24px 30px;` |
-| `.tile` | the same card, in a layout | `background: var(--surface); border: 0; border-radius: var(--r); padding: 24px 36px;` |
-| `.box` | the same card, placed by hand (`.amber`, `.green`, `.red`, `.ghost`, `.sketch`, `.left`, `.row`) | `position: absolute; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--surface); border: 0; border-radius: var(--r); font-size: 28px; line-height: 1.3; padding: 12px 20px;` |
-| `.panel` | the same card, as the forms use it | `position: absolute; background: var(--panel, var(--surface)); border: 0; border-radius: var(--r);` |
-| `.note` | the one callout: a quiet panel labeled Note (`.red` says Watch out, `.blue`) | `position: absolute; font-size: 26px; padding: 14px 22px; border-radius: var(--r); background: var(--surface); border: 0; line-height: 1.3;` |
-| `.label` | the label: a small quiet patch for a word or two. The only one | `display: inline-block; font-size: 20px; padding: 4px 12px; background: var(--surface-2); color: var(--ink-2); border: 0; border-radius: var(--r-sm); font-family: var(--font); font-weight: 600; max-width: 100%; text-wrap: balance;` |
-| `.frame` | a dashed group with a `.lbl` | `position: absolute; border: 2px dashed var(--line); border-radius: var(--r-lg);` |
-| `.window` | a browser window with a `.bar` and an `<img>` | `position: absolute; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden;` |
-| `.code` | a code block (`<pre><code>`), a darker panel; `.hl` lights a line in blue | `position: absolute; background: var(--bg-deep); border: 0; border-radius: var(--r-lg); text-align: left;` |
-| `.bar` | a neutral chart bar, `style="--v:60%"`; `.hi` is the one being talked about, in blue | `height: 56px; width: var(--v, 50%); background: var(--line-strong); border-radius: 0 var(--r-sm) var(--r-sm) 0; align-self: flex-start;` |
-| `.shot` | a screenshot `<img>` | `position: absolute; border-radius: var(--r-lg); border: 2px solid var(--line); background: var(--surface); object-fit: contain;` |
-
-Cards and labels: use these, never a box or tag of your own. A scene that styles its own rounded box doesn't look like Chalkdust.
-
-## Animation classes
-
-For hand-timed scenes, with `data-b`, `data-f` and `data-o`. A `K` helper or a piece is usually the better way.
-
-`.a-in`, `.a-pop`, `.a-fade`, `.a-dim`, `.a-out`, `.a-draw`, `.a-strike`, `.a-glow`, `.a-glowred`, `.a-press`, `.a-fly`, `.a-flystay`, `.a-cap`
-
-Every other class the template styles: `.kicker`, `.title`, `.amber`, `.green`, `.red`, `.ghost`, `.sketch`, `.g-link-label`, `.dot`, `.hl`, `.lbltxt`, `.sline`, `.ov`, `.dots`, `.kit`, `.kit-label`, `.icon`, `.row`, `.g-part`, `.g-text`, `.g-arrow`, `.g-label`, `.hi`.
+| `big` | one huge number or word | `font-size: 160px; font-weight: 800; line-height: 1.05;` |
+| `h1` | the slide's main words | `font-size: 84px; font-weight: 800; line-height: 1.1; letter-spacing: -.02em;` |
+| `h2` | a heading | `font-size: 62px; font-weight: 700; line-height: 1.15;` |
+| `h3` | a label under a drawing | `font-size: 46px; font-weight: 600; line-height: 1.2;` |
+| `caption` | a quiet line | `font-size: 32px; font-weight: 500; color: var(--muted);` |
 
 ## Drawings
 
-197 drawings in the brand's style. Use one by name: `<div data-part="name" class="l"></div>` or `Part('name')`. `Part('person').badge('check')` pins a small one to a corner for a variant. A Lucide name in `data-icon` draws our version when we have one. Draw a new one only when nothing here fits.
+197 drawings in the brand's style. Use one by name, `Part('name')`, at a size: `s`, `m`, `l`, `xl`. `Part('person').badge('check')` pins a small one to a corner for a variant. Draw a new one only when nothing here fits.
 
 - `person`: person user human customer developer engineer viewer
 - `robot`: robot agent ai claude model bot assistant
@@ -333,7 +273,7 @@ Every other class the template styles: `.kicker`, `.title`, `.amber`, `.green`, 
 
 ## Pieces
 
-A slide is a tree of pieces: `slide(Row(Labeled('Browser', Part('browser')), Arrow(), Labeled('Server', Part('server'))))`. `slide.cut(word, ...)` starts a new slide when the word is spoken. Each piece is listed with its arguments, what it is, and the options its code reads.
+A slide is a tree of pieces, in the cast of a `## heading` in video.md: `const browser = Labeled('Browser', Part('browser')), server = Part('server'); slide(Row(browser, Arrow(), server))`. The cast says what is on screen and nothing about when; the script under it says when, by linking words to names: `The [browser](browser) [asks](browser->server) the [server](server).` See presets.md. Each piece is listed with its arguments, what it is, the options its code reads, and the parts a script can point at in it.
 
 ### `Row(...kids)`
 
@@ -363,13 +303,19 @@ Options: `size`, `enter`. `size` is one of `s`, `m`, `l`, `xl`.
 
 Words on the slide, at one of the text sizes: Text('Ship it', { size: 'h1', color: 'green' }).
 
-Options: `size`, `color`, `enter`. `size` is one of `big`, `h1`, `h2`, `h3`, `caption`. `color` is any color name.
+Options: `size`, `color`, `link`, `enter`. `size` is one of `big`, `h1`, `h2`, `h3`, `caption`. `color` is any color name.
 
 ### `Labeled(words, inner, options)`
 
 A decorator: a caption that belongs to another glyph, so it's centered on it by construction.
 
 Options: `enter`.
+
+### `Image(src, options)`
+
+A real image from assets/, like a screenshot: Image('assets/player.jpg', { size, ratio, link }).
+
+Options: `size`, `link`, `ratio`, `alt`, `enter`.
 
 ### `Arrow(options)`
 
@@ -383,19 +329,19 @@ One state in a Machine: its name in a pill.
 
 ### `Machine(transitions, options)`
 
-A state machine: Machine([[idle, busy, 'start'], [busy, idle, 'cancel']], { start: idle, steps: [{ to: busy, on: 'busy' }] }). The states are laid out and the transitions drawn as Flow does it. The current state wears a ring in its own color, from when the start state appears, and the ring moves to each step's state on its word, or as that state appears.
+A state machine: Machine([[idle, busy, 'start'], [busy, idle, 'cancel']], { start: idle }). The states are laid out and the transitions drawn as Flow does it. The current state wears a ring in its own color, from when the start state appears, and the ring moves to each state as the script names it: [busy](busy).
 
-Options: `start`, `steps`, `color`, `direction`.
+Options: `start`, `color`, `direction`.
 
 ### `Sequence(actors, messages, options)`
 
-Who sends what to whom, in order: Sequence([browser, server], [[browser, server, 'GET /'], [server, browser, '200', { reply: true }]]). Actors stand across the top with lifelines down. Each message is an arrow on its own row, with its words above it; a reply is dashed, and a message to itself loops back. Each comes in on its word, or after the last.
+Who sends what to whom, in order: Sequence([browser, server], [[browser, server, 'GET /'], [server, browser, '200', { reply: true }]]). Actors stand across the top with lifelines down. Each message is an arrow on its own row, with its words above it; a reply is dashed, and a message to itself loops back. Each comes in when the script names it, [asks](browser->server), the next between the same two the next time it's named, or else after the last.
 
 ### `Connect(from, to, options)`
 
 An arrow between any two glyphs, even ones far apart. It leaves from an edge, and goes around what's between them.
 
-Options: `on`, `color`, `label`, `travel`, `fromSide`, `toSide`.
+Options: `color`, `label`, `travel`, `fromSide`, `toSide`.
 
 ### `Flow(links, options)`
 
@@ -473,31 +419,31 @@ Options: `enter`.
 
 ### `Table(columns, rows, options)`
 
-A table: Table(['Name', 'Joined'], [['Ann', 2019], { cells: ['Bob', 2021], on: 'Bob', color: 'green' }]). A row given as { cells, on, color } lights on its word.
+A table: Table(['Name', 'Joined'], [['Ann', 2019], { cells: ['Bob', 2021], color: 'green' }]). The script names a row by number: [Bob](table.2).
 
 Options: `enter`.
 
 ### `Code(source, options)`
 
-Real code, highlighted, with lines that light as they're talked about: Code(source, { lang, caption, link, highlight: [{ line, on, color }] }).
+Real code, highlighted: Code(source, { lang, caption, link }). The script lights a line, [reads](code.2), or a word on it, [db](code.2.db).
 
-Options: `lang`, `link`, `caption`, `highlight`, `enter`.
+Options: `lang`, `link`, `caption`, `enter`.
 
 ### `Diff(before, after, options)`
 
-The change between two versions of some code: Diff(before, after, { lang, change: 'word' }). It's drawn as Code is. Lines that stay are shown once; a line taken out is signed with a minus and a line put in with a plus. On the change word, or just after it appears, the old lines go red and fade, and the new ones come in, marked green.
+The change between two versions of some code: Diff(before, after, { lang }). It's drawn as Code is. Lines that stay are shown once; a line taken out is signed with a minus and a line put in with a plus. When the script says, [the fix](diff.change), or just after it appears, the old lines go red and fade, and the new ones come in green.
 
-Options: `change`, `lang`, `link`, `caption`, `highlight`, `enter`.
+Options: `lang`, `link`, `caption`, `enter`.
 
 ### `Files(paths, options)`
 
-A project's files as a tree: Files(['src/app.py', 'src/db/models.py', 'README.md'], { highlight: [{ path, on }], added: [paths], removed: [paths] }). Folders come from the paths. A highlighted file lights on its word, and files added or removed are marked with a green plus or a red minus. It sizes itself as Code does.
+A project's files as a tree: Files(['src/app.py', 'src/db/models.py', 'README.md'], { added: [paths], removed: [paths] }). Folders come from the paths. A file lights when the script names it, [models](files.models), and files added or removed are marked with a green plus or a red minus. It sizes itself as Code does.
 
-Options: `added`, `removed`, `highlight`, `enter`.
+Options: `added`, `removed`, `enter`.
 
 ### `Terminal(entries, options)`
 
-A terminal: Terminal([{ cmd: 'npm test', on: 'run' }, { out: '12 passing', color: 'green' }], { title: 'zsh' }), or plain text where lines starting with $ are commands. Each command types out at the prompt on its word, or after the entry before, and the lines it prints come in once it's typed. Copying copies just the commands.
+A terminal: Terminal([{ cmd: 'npm test' }, { out: '12 passing', color: 'green' }], { title: 'zsh' }), or plain text where lines starting with $ are commands. Each command types out at the prompt when the script names it, by number, [run the tests](term.1), or after the entry before, and the lines it prints come in once it's typed. Copying copies just the commands.
 
 Options: `title`, `color`, `enter`.
 
@@ -507,72 +453,32 @@ A window around any glyph: Window(Part('browser'), { title: 'App' }). It's the b
 
 Options: `title`, `enter`.
 
-### What every piece can do
+### What the script does with a piece
 
-Each returns the piece, so they chain: `Part('server').on('server').light('busy', 'red')`. A word is one the narration speaks. `enter` in a piece's options picks its entrance, as `K.show`'s `kind` does.
+Naming a piece in a link brings it on the first time and lights it after that, until the next thing lights: `[the server](server)`. A color or a light goes after a colon: `[trouble](server:red)`, `[look](server:spot)`. `[gone](-server)` hides it, `[here](+server)` shows it without a light, and `[all of it](*)` brings on everything not on yet. `a->b` is the line between two things: it draws, and a second mention sends something along it. A path points inside a piece: `steps.launch`, `code.2`, `code.2.token`, `trace.server`.
 
-- `.on(word)`: Come on screen when this word is spoken.
-- `.at(time)`: Come on screen at this many seconds into the slide.
-- `.light(word, how = 'yellow')`: Light up when this word is spoken: light('busy'), or light('busy', { style: 'spot' }). It goes out when the next thing on the slide lights, or on its own word with { until: 'word' }; { keep: true } keeps it on. lift (the default) grows it a little inside an outline in its color; spot dims everything else.
-- `.badge(name, options = {})`: Pins a small drawing to a corner, so one drawing covers its variants: a person with a check, a shield with a padlock. It pops in just after the drawing, or when its own word is spoken: badge('check', { on: 'approved' }).
-- `.unlight(word)`: Stop glowing when this word is spoken.
-- `.morph(word, styles, options = {})`: Change how it looks when this word is spoken: morph('fixed', { color: 'green', scale: 1.1 }).
-- `.hide(word)`: Go away when this word is spoken, with any arrows inside.
-- `.moveTo(word, other, options = {})`: Travel to where another glyph is when this word is spoken. Arrows don't follow it.
-- `.zoom(word, options = {})`: Move the camera in until this fills the stage, when the word is spoken. zoom('look', { pad, max, dur }).
-- `.zoomOut(word, options = {})`: Take the camera back out to the whole stage when this word is spoken, and bring back what the zoom put away.
-- `.swap(word, text)`: The old text lifts away and the new one settles in, when this word is spoken.
-- `.rewrite(word, text)`: Becomes new text when this word is spoken, and the words both share travel to their new places.
+Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, lift by default.
+
+### Moves a cast can give a piece
+
+Each returns the piece, so they chain: `Text('v1').swap('v2')`. A move is named by its kind, a second of the same kind by its number (`swap-2`), and the script says when: `[ships](label.swap)`. `enter` in a piece's options picks its entrance.
+
+- `.badge(name, options = {})`: Pins a small drawing to a corner, so one drawing covers its variants: a person with a check, a shield with a padlock. It pops in just after the drawing, or when the script names it: [approved](person.check).
+- `.morph(styles, options = {})`: Change how it looks: morph({ color: 'green', scale: 1.1 }). The script says when: [fixed](box.morph).
+- `.moveTo(other, options = {})`: Travel to where another glyph is: moveTo(other). The script says when: [moves over](chip.moveTo).
+- `.zoom(options = {})`: Move the camera in until this fills the stage: zoom({ pad, max, dur }). The script says when: [look](db.zoom).
+- `.zoomOut(options = {})`: Take the camera back out to the whole stage, and bring back what the zoom put away: [back out](db.zoomOut).
+- `.swap(text)`: The old text lifts away and the new one settles in: swap('v2'). The script says when: [ships](label.swap).
+- `.rewrite(text)`: Becomes new text, and the words both share travel to their new places: rewrite('new'). [now](label.rewrite).
 - `.typed(options = {})`: Arrive letter by letter. typed({ dur }) sets how long the typing takes.
 - `.wordByWord(options = {})`: Arrive a word at a time. wordByWord({ each }) sets the seconds between words.
 
-`.light` styles: `lift`, `spot`.
-
-## K helpers
-
-In `scene(({ K, at }) => { ... })`, or by name in `K.say`. `at(beat, fraction)` is a time in a beat, and `at.word('word')` is when a word is spoken.
-
-Every helper takes `at`, the time it happens. The options listed are the ones `K.say` passes as `name=value`.
-
-- `K.arrow(from, to, o = {})`: An arrow from one element to another: curved, drawn on, with an arrowhead that lands at the end. Options: `color`, `fromSide`, `toSide`, `curve`, `bow`, `flip`, `dashed`, `flow`, `padStart`, `padEnd`, `straights`, `dur`.
-- `K.path(d, o = {})`: Any path, drawn on. head: {x, y, angle} (radians) or false. dashed: true for a dashed line.
-- `K.flow(p, o = {})`: Dots that run along a drawn path a few times, to show direction.
-- `K.travel(what, p, o = {})`: A chip (or any element) that travels along a path. stay: true keeps it at the end. Options: `dur`, `stay`.
-- `K.swap(what, text, o = {})`: Replace an element's text in place: the old text lifts away, the new one settles in. Options: `color`.
-- `K.type(what, text, o = {})`: Type text into an element, letter by letter. Options: `dur`.
-- `K.show(what, o = {})`: Show an element. kind: pop (default), in, fade, or an entrance that means something: slide (came from elsewhere; from: 'left' | 'right' | 'top' | 'bottom', distance), grow (a part coming out of the thing above it). Options: `kind`, `from`, `distance`, `dur`, `each`.
-- `K.icon(what, o = {})`: Draw an icon on, line by line. The element has data-icon="name", which the build fills in. Options: `dur`, `kind`, `each`.
-- `K.move(what, to, o = {})`: The same element travels, so nobody has to be told it's the same thing. to: an element (centers line up) or {x, y} in page coordinates for the element's center. Other CSS can change on the way, with style: {...}. Arrows don't follow, so draw them after the move. Options: `x`, `y`, `dur`.
-- `K.light(what, o = {})`: Light something up to show it's active: a glow, a border, and any icon inside. Options: `color`, `dur`, `each`, `style`.
-- `K.hide(what, o = {})`: Hide an element. Options: `dur`, `each`.
-- `K.spot(keep, o = {})`: Dim everything except the given elements, from `at` until `until` (or the end of the scene). Options: `until`.
-- `K.cam(target, o = {})`: Move the camera so `target` (an element, or {x, y, w, h}) fills the stage. reset: true goes back. Options: `reset`, `pad`, `max`, `dur`.
-- `K.morph(what, vars, o = {})`: Change an element's look: a box turning green when it's fixed, say.
-- `K.stagger(what, o = {})`: Stagger a list of elements in, one after another. Options: `each`.
-- `K.boxOf(el)`: Where an element is on the stage, ignoring any transform.
-- `K.unlight(what, o = {})`: Turn off K.light. Options: `dur`, `each`, `style`.
-- `K.cut(what, o = {})`: A hard cut inside a slide: show this .slide or .layer, hide the others beside it, and clear any lines drawn so far.
-- `K.say(text, o = {})`: A list of moves, one line per moment. Each line starts with a word from the narration, and the next line looks for its word after that one, so repeated words just work: K.say(` browser   #b server    #s in; arrow #b #s green slow      mark #s red +0.3; count #t 4.2 suffix=s dec=1 +1.5      cut #second `); A line can start with +seconds (after the last line) or @beat, or @beat.fraction, instead of a word. A move is any K helper's name, then selectors, "text", numbers, name=value options, a +seconds nudge, and bare words like red, in, fade, box or left. A selector alone means show, and one matching several elements staggers them.
-- `K.drift(what, o = {})`: A slow, constant move, so a held picture doesn't sit dead still. Defaults to the whole stage. Options: `scale`, `x`, `y`, `dur`, `origin`.
-- `K.parallax(layers, o = {})`: Layers slide at different speeds, which reads as depth. layers: {'#sky': 0.1, '#hills': 0.4, '#front': 1}.
-- `K.mark(what, o = {})`: Draw attention to something already on screen by drawing on it. kind: underline (default) or box. Options: `kind`, `color`, `pad`, `dur`, `width`, `each`.
-- `K.words(what, o = {})`: Text arrives one word at a time. spoken: true lands each word on the moment the narration says it. Options: `spoken`, `beat`, `each`.
-- `K.count(what, to, o = {})`: A number counts up to its value. format turns the number into text, like (n) => `$${n}`. Options: `from`, `dur`, `prefix`, `suffix`, `dec`.
-- `K.wipe(what, o = {})`: Reveal something by sweeping across it. from: left (default), right, top, bottom. Options: `from`, `dur`, `each`.
-- `K.rewrite(what, text, o = {})`: Text becomes new text, and the words they share travel to their new places, so you can see what changed. Works on a sentence, an equation or a line of code. Options: `dur`.
-
 ## Forms
 
-Ready-made ways to explain code. Each fills the stage, so a scene usually needs only one. As a piece: `Form('trace', data)`.
+Ready-made ways to explain code, as one piece: `Form(kind, data)`. Each fills the stage. Its moments are parts the script names, like `trace.server`; see scene-authoring.md.
 
-- `K.trace(o)`: Something moves through a system and changes as it goes. K.trace({ lang, hops: [{ at, label, icon, carry, job, code, file }] })
-- `K.states(o)`: Something moves between states. The current state stays lit. K.states({ lang, code, states: [{ id, label, col, row, color }], start: { state, at, line }, steps: [{ from, to, label, at, line, fromSide, toSide }] })
-- `K.reshape(o)`: One data shape becomes another. Each target field names the source field it came from. K.reshape({ via, from: { title, fields: [{ name, value }] }, to: { title, fields: [{ name, value, from }] }, at: { from, to, keep, rename, add, drop } })
-- `K.race(o)`: Things happen at the same time, and the order decides the outcome. Call it twice to compare two runs. K.race({ top, lanes: ['A', 'B'], span: 10, from, to, shared: { label, values: [{ x, text, bad }] }, events: [{ lane, x, label, kind: 'read' | 'write' | 'bad' | 'good' }], holds: [{ lane, x1, x2 }], verdict: { text, color, at } })
-- `K.barrier(o)`: Separate attempts stopped at a wall, each protecting something. A row with pass: true gets through. K.barrier({ source: { label, icon }, wall: 'sandbox', rows: [{ on, attempt, target, why, pass }] })
-
-## Transitions
-
-How a scene comes in, as `"transition"` in `scenes.json`. Every scene after the first fades in unless it says otherwise.
-
-`cut`, `fade`, `slide`, `slide-up`
+- `Form('trace', data)`: Something moves through a system and changes as it goes. Form('trace', { lang, hops: [{ label, icon, carry, job, code, file }] }), each hop a moment: trace.server
+- `Form('states', data)`: Something moves between states. The current state stays lit. Form('states', { lang, code, states: [{ id, label, col, row, color }], start: { state, line }, steps: [{ from, to, label, line, fromSide, toSide }] }), each step a moment named by the state it goes to: states.busy
+- `Form('reshape', data)`: One data shape becomes another. Each target field names the source field it came from. Form('reshape', { via, from: { title, fields: [{ name, value }] }, to: { title, fields: [{ name, value, from }] } }), with the moments from, to, keep, rename, add and drop
+- `Form('race', data)`: Things happen at the same time, and the order decides the outcome. Call it twice to compare two runs. Form('race', { top, lanes: ['A', 'B'], span: 10, shared: { label, values: [{ x, text, bad }] }, events: [{ lane, x, label, kind: 'read' | 'write' | 'bad' | 'good' }], holds: [{ lane, x1, x2 }], verdict: { text, color } }), with the moments start, end and verdict
+- `Form('barrier', data)`: Separate attempts stopped at a wall, each protecting something. A row with pass: true gets through. Form('barrier', { source: { label, icon }, wall: 'sandbox', rows: [{ attempt, target, why, pass }] }), each row a moment named by its target: barrier.disk
