@@ -5,6 +5,9 @@
   chalkdust publish <folder>                  upload scenes, wait for the build, print the links, warnings and stills
   chalkdust parts <words>                     search our drawings, to use with data-part="name" in a scene
   chalkdust watch <folder>                    block until a question arrives, print it, exit (run in the background; also exits if nobody's watching)
+  chalkdust stream <folder>                   stream the video itself: the first run makes it and prints its links, and each
+                                              run after sends the slides added since, playing within seconds
+  chalkdust stream <folder> --done            finish the streamed video, and check all of it
   chalkdust stream <folder> <question>        publish the answer in <folder>/answers/<question>/video.md as it is now: run it
                                               after each beat you add, while the viewer watches; checks come back in seconds
   chalkdust stream <folder> <question> --done  finish the streamed answer, and check all of it
@@ -242,15 +245,33 @@ def print_warnings(warnings):
         print("warning: " + w)
 
 
+def stream_video_route(folder):
+    """The video's own stream. Made the first time, with its links printed at once, so the user opens it while the next
+    slides are written."""
+    state_file = os.path.join(folder, ".chalkdust.json")
+    if not os.path.exists(state_file):
+        state = api("POST", "/api/videos/stream", {})
+        fd = os.open(state_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)  # holds the owner link
+        with os.fdopen(fd, "w") as f:
+            json.dump(state, f)
+        print("your link, which lets you ask questions:", state["owner_url"])
+        print("link to share, watch only:", state["watch_url"])
+    return f"/api/videos/{video_id(folder)}/stream"
+
+
 def cmd_stream(args):
-    vid = video_id(args.folder)
-    folder = os.path.join(args.folder, "answers", args.question)
-    route = f"/api/videos/{vid}/questions/{args.question}/stream"
+    if not args.question:
+        folder, route, what = args.folder, stream_video_route(args.folder), "video"
+    else:
+        vid = video_id(args.folder)
+        folder = os.path.join(args.folder, "answers", args.question)
+        route, what = f"/api/videos/{vid}/questions/{args.question}/stream", "answer"
     try:
         if args.done:
             result = api("POST", route + "/done", {}, timeout=600)
-            answered(args.folder, args.question)
-            print("done: the answer is complete")
+            if args.question:
+                answered(args.folder, args.question)
+            print(f"done: the {what} is complete")
             print_warnings(result.get("warnings", []))
             return
         result = api("POST", route, read_sources(folder), timeout=300)
@@ -289,8 +310,8 @@ def main_with(argv):
         p = sub.add_parser(name); p.add_argument("folder"); p.set_defaults(fn=fn)
     for name, fn in (("answer", cmd_answer), ("release", cmd_release)):
         p = sub.add_parser(name); p.add_argument("folder"); p.add_argument("question"); p.set_defaults(fn=fn)
-    p = sub.add_parser("stream"); p.add_argument("folder"); p.add_argument("question")
-    p.add_argument("--done", action="store_true", help="finish the answer"); p.set_defaults(fn=cmd_stream)
+    p = sub.add_parser("stream"); p.add_argument("folder"); p.add_argument("question", nargs="?", help="an answer to stream; leave it out to stream the video itself")
+    p.add_argument("--done", action="store_true", help="finish the video or the answer"); p.set_defaults(fn=cmd_stream)
     p = sub.add_parser("parts"); p.add_argument("words", nargs="+"); p.set_defaults(fn=cmd_parts)
     p = sub.add_parser("delete"); p.add_argument("folder"); p.add_argument("--yes", action="store_true"); p.set_defaults(fn=cmd_delete)
     p = sub.add_parser("note"); p.add_argument("folder"); p.add_argument("question"); p.add_argument("text"); p.set_defaults(fn=cmd_note)
