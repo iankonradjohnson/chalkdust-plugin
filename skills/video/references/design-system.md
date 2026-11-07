@@ -427,13 +427,13 @@ Options: `enter`.
 
 Real code, highlighted: Code(source, { lang, file, caption, link }). file names it in a bar across the top; caption describes it underneath. The script lights a line, [reads](code.2), or a word on it, [db](code.2.db).
 
-Options: `lang`, `link`, `caption`, `file`, `enter`.
+Options: `lang`, `link`, `caption`, `file`, `numbers`, `enter`.
 
 ### `Diff(before, after, options)`
 
 The change between two versions of some code: Diff(before, after, { lang }). It's drawn as Code is. Lines that stay are shown once; a line taken out is signed with a minus and a line put in with a plus. When the script says, [the fix](diff.change), or just after it appears, the old lines go red and fade, and the new ones come in green.
 
-Options: `lang`, `link`, `caption`, `file`, `enter`.
+Options: `lang`, `link`, `caption`, `file`, `numbers`, `enter`.
 
 ### `Files(paths, options)`
 
@@ -457,7 +457,7 @@ Options: `title`, `enter`.
 
 Naming a piece in a link brings it on the first time and lights it after that, until the next thing lights: `[the server](server)`. A color or a light goes after a colon: `[trouble](server:red)`, `[look](server:spot)`. `[gone](-server)` hides it, `[here](+server)` shows it without a light, and `[all of it](*)` brings on everything not on yet. `a->b` is the line between two things: it draws, and a second mention sends something along it. A path points inside a piece: `steps.launch`, `code.2`, `code.2.token`, `trace.server`. Any word lights the same way, by its color until the next light: the piece, its part, then the word, `[605](bars.javascript-605-tests.605:green)`, `[pro](table.2.pro)`, and in plain text the piece then the word, `[fast](title.fast)`. Light words as they are said: the more that moves with the voice, the better.
 
-Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, lift by default.
+Colors: `red`, `green`, `blue`, `yellow`, `orange`. Lights: `lift`, `spot`, `grow`, lift by default.
 
 ### Moves a cast can give a piece
 
@@ -466,10 +466,9 @@ Each returns the piece, so they chain: `Text('v1').swap('v2')`. A move is named 
 - `.wordPart(path)`: A word in a part: the part, then the word, [605](time.javascript-605-tests.605) (Ian, 2026-11-07: "all words should have the ability to light up on their own"). The longest part that fits comes first. null if no part fits.
 - `.partNode(key)`: (no description in the code)
 - `.badge(name, options = {})`: Pins a small drawing to a corner, so one drawing covers its variants: a person with a check, a shield with a padlock. It pops in just after the drawing, or when the script names it: [approved](person.check).
+- `.showAt(stage, time)`: Comes back after a hide: what [here](+name) does once it's gone.
 - `.morph(styles, options = {})`: Change how it looks: morph({ color: 'green', scale: 1.1 }). The script says when: [fixed](box.morph).
 - `.moveTo(other, options = {})`: Travel to where another glyph is: moveTo(other). The script says when: [moves over](chip.moveTo).
-- `.zoom(options = {})`: Move the camera in until this fills the stage: zoom({ pad, max, dur }). The script says when: [look](db.zoom).
-- `.zoomOut(options = {})`: Take the camera back out to the whole stage, and bring back what the zoom put away: [back out](db.zoomOut).
 - `.swap(text)`: The old text lifts away and the new one settles in: swap('v2'). The script says when: [ships](label.swap).
 - `.rewrite(text)`: Becomes new text, and the words both share travel to their new places: rewrite('new'). [now](label.rewrite).
 - `.typed(options = {})`: Arrive letter by letter. typed({ dur }) sets how long the typing takes.

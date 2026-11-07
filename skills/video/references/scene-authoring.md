@@ -72,7 +72,6 @@ A name made of several words is written with dashes: `steps.timing-fails`, `side
 | `Text('a = 1 + 2').rewrite('a = 3')`: shared words travel to their new places | `[becomes](sum.rewrite)` |
 | `x.morph({ color: 'green', scale: 1.1 })` | `[it's fixed](x.morph)` |
 | `chip.moveTo(other)` | `[moves over](chip.moveTo)` |
-| `x.zoom()`, `x.zoomOut()`: the camera in to it, and back | `[look closer](x.zoom)`, `[back out](x.zoomOut)` |
 
 A second move of the same kind is named with its number: `label.swap-2`. A move the script never says doesn't happen, and the build says so. `Text(...).typed()` and `.wordByWord()` are how text arrives, when it's named.
 
