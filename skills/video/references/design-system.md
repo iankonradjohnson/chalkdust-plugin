@@ -391,7 +391,7 @@ Options: `color`, `enter`.
 
 A big number that counts up to its value when it comes on, with what it counts under it.
 
-Options: `color`, `enter`, `prefix`, `suffix`, `dec`.
+Options: `color`, `dec`, `enter`, `prefix`, `suffix`.
 
 ### `Line(points, options)`
 

@@ -50,7 +50,7 @@ Never ask for a key in chat, and never run `chalkdust login <key>` with a key yo
    ```bash
    chalkdust stream ~/chalkdust/<slug>
    ```
-   The first run makes the video and prints its two links. Start the watcher (step 5) and give the user their link now: the player starts at the first beat, while you write the rest. Then write the next slide, or the next paragraph of this one, and run the same command again. Only what's new is voiced, and it plays within seconds. It prints `live:` and what the checks found on the newest slide: fix what it flags and keep going. A beat once played can't change, so say only what you've checked. Finish with `chalkdust stream ~/chalkdust/<slug> --done`, which checks the whole video.
+   The first run makes the video and prints its two links. Start the watcher (step 5) and give the user their link now: the player starts at the first beat, while you write the rest. Then write the next slide, or the next paragraph of this one, and run the same command again. Only what's new is voiced, and it plays within seconds. It prints `live:` and what the checks found on the newest slide. A warning is for the slides still to come: write the next ones better, and don't go back to change a slide the user has already watched. A beat once played can't change, so say only what you've checked. Finish with `chalkdust stream ~/chalkdust/<slug> --done`, which checks the whole video.
 
    When nobody's waiting, you can build it whole instead:
    ```bash
