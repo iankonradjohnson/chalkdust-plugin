@@ -38,6 +38,13 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-plots` | Scatter, Histogram, Heatmap |
 | `p-structure` | Calls, Schema |
 | `p-motion` | Stream, sort, countTo |
+| `p-reveal` | The big reveal |
+| `p-before-after` | Before and after |
+| `p-predict` | Pause and predict |
+| `p-countdown` | Countdown |
+| `p-photo` | A real photo, large |
+| `p-myth` | The wrong idea first |
+| `p-quote` | A quote |
 
 ## f-trace Form: trace
 
@@ -337,3 +344,68 @@ slide(Column(Flow([[app, api, { label: 'events', stream: true }]]), Row(list, us
 ```
 
 The [app](app) [keeps sending](app->api) events. The list [sorts itself](list.sort), and the [users](users) [climb to forty](users.countTo).
+
+## p-reveal The big reveal
+
+```js
+const setup = Text('How many tests run on every push?', { size: 'h2' }), answer = Stat(1744, 'tests, in two seconds', { color: 'blue' })
+slide(Column(setup, answer))
+```
+
+[How many tests](setup) run on [every push](setup.every)? [Seventeen hundred forty four](answer), in [two seconds](answer).
+
+## p-before-after Before and after
+
+```js
+const before = Part('stopwatch', { size: 'l' }), was = Text('12 seconds', { size: 'h2' })
+const after = Part('rocket', { size: 'l' }), now = Text('4 seconds', { size: 'h2', color: 'green' })
+slide(Row(Column(before, was), Arrow(), Column(after, now)))
+```
+
+[Before](before), the build took [twelve seconds](was). [After](after) the cache, [four](now).
+
+## p-predict Pause and predict
+
+```js
+const think = Part('question', { size: 'm' }), pause = Text('Pause and guess', { size: 'h3', color: 'blue' })
+const ask = Text('Two requests at once?', { size: 'h2' }).swap('Both read the old value')
+slide(Column(Row(think, pause), ask))
+```
+
+[Pause](think) and [guess](pause.guess): what happens when [two requests arrive at once](ask)? [Both read the old value](ask.swap).
+
+## p-countdown Countdown
+
+```js
+const ranks = Timeline([{ when: '3', what: 'Slow queries' }, { when: '2', what: 'No cache' }, { when: '1', what: 'Calls in a loop', color: 'red' }], { down: true })
+slide(ranks)
+```
+
+The [three biggest costs](ranks). Number three: [slow queries](ranks.slow-queries). Two: [no cache](ranks.no-cache). And number one: [calls in a loop](ranks.calls-in-a-loop).
+
+## p-photo A real photo, large
+
+```js
+const photo = Image('assets/player.jpg', { size: 'xl', ratio: 6 / 7 }), caption = Text('the real thing', { size: 'caption' })
+slide(Column(photo, caption))
+```
+
+[Here it is](photo), [the real thing](caption).
+
+## p-myth The wrong idea first
+
+```js
+const myth = Compare({ title: 'Myth', points: [{ text: 'more servers, more speed', good: false }] }, { title: 'Actually', points: [{ text: 'the database is the limit', good: true }] })
+slide(myth)
+```
+
+[Most people think](myth.myth) [more servers](myth.myth.1) mean more speed. [Actually](myth.actually), [the database](myth.actually.1) is the limit.
+
+## p-quote A quote
+
+```js
+const quote = Text('"Make it work, then make it fast."', { size: 'h1' }), who = Labeled('Kent Beck', Part('person', { size: 's' }))
+slide(Column(quote, who))
+```
+
+[Make it work](quote.work), then [make it fast](quote.fast). That's [Kent Beck](who).
