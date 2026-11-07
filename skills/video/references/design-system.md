@@ -283,9 +283,9 @@ Options: `enter`.
 
 ### `Column(...kids)`
 
-Pieces one above another, centered.
+Pieces one above another, centered, or lined up on the left with a last { align: 'start' }.
 
-Options: `enter`.
+Options: `align`, `enter`.
 
 ### `Grid(count, ...kids)`
 

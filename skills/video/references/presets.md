@@ -45,6 +45,15 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-photo` | A real photo, large |
 | `p-myth` | The wrong idea first |
 | `p-quote` | A quote |
+| `p-steps-icons` | Steps, each with its drawing |
+| `p-compare-icons` | Compare, each point with its drawing |
+| `p-stack-icons` | Layers, each with its drawing |
+| `p-bars-icons` | Bars, each label with its drawing |
+| `p-checklist` | A checklist |
+| `p-stat-row` | Numbers, each with its drawing |
+| `p-callout` | A callout |
+| `p-definition` | A definition |
+| `p-qa` | A question and its answer |
 
 ## f-trace Form: trace
 
@@ -377,11 +386,12 @@ slide(Column(Row(think, pause), ask))
 ## p-countdown Countdown
 
 ```js
-const ranks = Timeline([{ when: '3', what: 'Slow queries' }, { when: '2', what: 'No cache' }, { when: '1', what: 'Calls in a loop', color: 'red' }], { down: true })
+const slow = Text('Slow queries'), nocache = Text('No cache'), loop = Text('Calls in a loop', { color: 'red' })
+const ranks = Timeline([{ when: '3', what: Row(Part('database', { size: 's' }), slow) }, { when: '2', what: Row(Part('cloud', { size: 's' }), nocache) }, { when: '1', what: Row(Part('bug', { size: 's' }), loop), color: 'red' }], { down: true })
 slide(ranks)
 ```
 
-The [three biggest costs](ranks). Number three: [slow queries](ranks.slow-queries). Two: [no cache](ranks.no-cache). And number one: [calls in a loop](ranks.calls-in-a-loop).
+The [three biggest costs](ranks). Number three: [slow queries](slow). Two: [no cache](nocache). And number one: [calls in a loop](loop).
 
 ## p-photo A real photo, large
 
@@ -395,11 +405,12 @@ slide(Column(photo, caption))
 ## p-myth The wrong idea first
 
 ```js
-const myth = Compare({ title: 'Myth', points: [{ text: 'more servers, more speed', good: false }] }, { title: 'Actually', points: [{ text: 'the database is the limit', good: true }] })
+const servers = Text('more servers, more speed'), limit = Text('the database is the limit')
+const myth = Compare({ title: 'Myth', points: [Row(Part('server', { size: 's' }), servers)] }, { title: 'Actually', points: [Row(Part('database', { size: 's' }), limit)] })
 slide(myth)
 ```
 
-[Most people think](myth.myth) [more servers](myth.myth.1) mean more speed. [Actually](myth.actually), [the database](myth.actually.1) is the limit.
+[Most people think](myth.myth) [more servers mean more speed](servers). [Actually](myth.actually), [the database is the limit](limit).
 
 ## p-quote A quote
 
@@ -409,3 +420,89 @@ slide(Column(quote, who))
 ```
 
 [Make it work](quote.work), then [make it fast](quote.fast). That's [Kent Beck](who).
+
+## p-steps-icons Steps, each with its drawing
+
+```js
+const power = Text('Power up'), apu = Text('Start the APU'), align = Text('Align the IRS')
+const steps = Timeline([{ when: '1', what: Row(Part('battery', { size: 's' }), power) }, { when: '2', what: Row(Part('gear', { size: 's' }), apu) }, { when: '3', what: Row(Part('compass', { size: 's' }), align) }], { down: true })
+slide(steps)
+```
+
+[Power up](power) first, then [start the APU](apu), then [align the IRS](align).
+
+## p-compare-icons Compare, each point with its drawing
+
+```js
+const fast = Text('fast reads'), more = Text('more to run'), simple = Text('one place'), slow = Text('slow reads')
+const sides = Compare({ title: 'Cache', points: [Row(Part('zap', { size: 's' }), fast), Row(Part('warning', { size: 's' }), more)] }, { title: 'No cache', points: [Row(Part('check', { size: 's' }), simple), Row(Part('alarm', { size: 's' }), slow)] })
+slide(sides)
+```
+
+[A cache](sides.cache) gives [fast reads](fast), but [more to run](more). [No cache](sides.no-cache) is [one place](simple), with [slow reads](slow).
+
+## p-stack-icons Layers, each with its drawing
+
+```js
+const browser = Text('Browser'), server = Text('Server'), db = Text('Database')
+const layers = Stack([Row(Part('phone', { size: 's' }), browser), Row(Part('server', { size: 's' }), server), Row(Part('database', { size: 's' }), db)])
+slide(layers)
+```
+
+[The browser](browser) talks to [the server](server), which reads [the database](db).
+
+## p-bars-icons Bars, each label with its drawing
+
+```js
+const py = Text('Python'), js = Text('JavaScript')
+const tests = Bars([{ label: Row(Part('bug', { size: 's' }), py), value: 808 }, { label: Row(Part('gear', { size: 's' }), js), value: 699 }])
+slide(tests)
+```
+
+[Python](py) runs eight hundred eight tests, and [JavaScript](js) six hundred ninety nine.
+
+## p-checklist A checklist
+
+```js
+const doors = Row(Part('check', { size: 's' }), Text('Doors closed', { size: 'h3' })), beacon = Row(Part('check', { size: 's' }), Text('Beacon on', { size: 'h3' }))
+const brakes = Row(Part('check', { size: 's' }), Text('Brakes set', { size: 'h3' }))
+slide(Column(doors, beacon, brakes, { align: 'start' }))
+```
+
+[Doors closed](doors). [Beacon on](beacon). [Brakes set](brakes).
+
+## p-stat-row Numbers, each with its drawing
+
+```js
+const users = Stat(1200, 'users'), uptime = Stat(99.9, 'uptime', { suffix: '%' }), reply = Stat(40, 'ms to reply', { color: 'green' })
+slide(Grid(3, Part('person', { size: 's' }), Part('server', { size: 's' }), Part('zap', { size: 's' }), users, uptime, reply))
+```
+
+[Twelve hundred users](users), [ninety nine point nine percent up](uptime), and [forty milliseconds](reply) to reply.
+
+## p-callout A callout
+
+```js
+const tip = Row(Part('lightbulb', { size: 'm' }), Text('Start engine 2 first', { size: 'h2' }))
+slide(tip)
+```
+
+[A tip](tip): start engine two first.
+
+## p-definition A definition
+
+```js
+const term = Text('Idempotent', { size: 'h1' }), means = Text('same result, however many times', { size: 'h3' })
+slide(Column(Row(Part('key', { size: 'm' }), term), means))
+```
+
+[Idempotent](term) means [the same result, however many times](means) you run it.
+
+## p-qa A question and its answer
+
+```js
+const q = Row(Part('question', { size: 's' }), Text('Why engine 2 first?', { size: 'h3' })), a = Row(Part('check', { size: 's' }), Text('Its pump runs the brakes', { size: 'h3' }))
+slide(Column(q, a))
+```
+
+[Why engine two first](q)? [Its pump runs the brakes](a).
