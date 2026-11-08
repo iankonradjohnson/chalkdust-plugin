@@ -319,7 +319,7 @@ Options: `size`, `link`, `ratio`, `alt`, `enter`.
 
 ### `Cutout(src, options)`
 
-One thing cut from a photo, on a transparent background, placed like a drawing: Cutout('assets/engine-cutout.png', { size, ratio, tilt }).
+One thing cut from a photo, on a transparent background, placed like a drawing: Cutout('assets/thing-cutout.png', { size, ratio, tilt }).
 
 Options: `tilt`, `size`, `link`, `ratio`, `alt`, `enter`.
 

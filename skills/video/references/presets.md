@@ -511,7 +511,7 @@ slide(Column(q, a))
 ## p-cutout Cutout
 
 ```js
-const engine = Cutout('assets/engine-cutout.png', { size: 'l', ratio: 3 / 2, tilt: -3 }), label = Text('a jet engine, cut from a photo', { size: 'h3' })
+const engine = Cutout('assets/engine-cutout.png', { size: 'l', ratio: 1.92, tilt: -3 }), label = Text('a jet engine, cut from a photo', { size: 'h3' })
 slide(Column(engine, label))
 ```
 
