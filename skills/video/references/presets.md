@@ -25,6 +25,7 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-terminal` | Terminal |
 | `p-window` | Window |
 | `p-scene` | Scene and Layer |
+| `p-backdrop` | Backdrop |
 | `p-light` | light, badge |
 | `p-form` | Form, as a piece |
 | `p-image` | Image, and links |
@@ -54,7 +55,27 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-callout` | A callout |
 | `p-definition` | A definition |
 | `p-qa` | A question and its answer |
+| `p-actor` | Actor, in a photo scene |
+| `p-album` | Album |
+| `p-filmstrip` | Filmstrip |
+| `p-prop` | Prop, in a photo scene |
 | `p-cutout` | Cutout |
+| `p-photo-title` | Text on a photo |
+| `p-name-tag` | Name tag |
+| `p-photo-chart` | A chart of cutouts on a photo |
+| `p-person` | Person |
+| `p-dog` | Dog |
+| `p-cat` | Cat |
+| `p-cow` | Cow |
+| `p-crowd` | Crowd |
+| `p-areas` | Flow areas |
+| `p-classes` | Class diagram |
+| `p-activity` | Activity diagram |
+| `p-commits` | Commit graph |
+| `p-usecase` | Use case diagram |
+| `p-components` | Component diagram |
+| `p-swimlanes` | Swimlanes |
+| `p-uml-classes` | Class diagram, strict UML |
 
 ## f-trace Form: trace
 
@@ -224,6 +245,15 @@ slide(hills, title)
 ```
 
 [Over](hills) the [hills](title).
+
+## p-backdrop Backdrop
+
+```js
+const city = Scene('city-skyline', Layer('bus', { depth: 1, x: 0.3 })), title = Text('Downtown', { size: 'h1' })
+slide(city, title)
+```
+
+The [city](city), its far, middle and near blocks each drifting at their own speed, and [downtown](title).
 
 ## p-light light, badge
 
@@ -467,7 +497,7 @@ slide(tests)
 ```js
 const doors = Row(Part('check', { size: 's' }), Text('Doors closed', { size: 'h3' })), beacon = Row(Part('check', { size: 's' }), Text('Beacon on', { size: 'h3' }))
 const brakes = Row(Part('check', { size: 's' }), Text('Brakes set', { size: 'h3' }))
-slide(Column(doors, beacon, brakes, { align: 'start' }))
+slide(Column(doors, beacon, brakes))
 ```
 
 [Doors closed](doors). [Beacon on](beacon). [Brakes set](brakes).
@@ -508,6 +538,44 @@ slide(Column(q, a))
 
 [Why engine two first](q)? [Its pump runs the brakes](a).
 
+## p-actor Actor, in a photo scene
+
+```js
+const cow = Actor('assets/cow-cutout.png', { ratio: 400 / 380, at: [0.62, 0.9], height: 300, from: 'right' })
+const field = Scene({ photo: 'assets/pasture.jpg', horizon: 0.37 }, cow)
+slide(field)
+```
+
+[A cow](cow), someone in the scene, wanders into a real pasture and stands in it, sized for where she stands.
+
+## p-album Album
+
+```js
+const apron = Prop('assets/apron.jpg', { ratio: 960 / 720 }), field = Prop('assets/pasture.jpg', { ratio: 1024 / 768 })
+slide(Album(apron, field))
+```
+
+[An airport apron](apron), then [a summer pasture](field): one picture at a time, each filling the frame on its word.
+
+## p-filmstrip Filmstrip
+
+```js
+const apron = Prop('assets/apron.jpg', { ratio: 960 / 720, label: '1955' }), field = Prop('assets/pasture.jpg', { ratio: 1024 / 768, label: '1960' })
+slide(Filmstrip(apron, field))
+```
+
+[An airport](apron) in one year, [a pasture](field) in the next: the camera glides along the line to each.
+
+## p-prop Prop, in a photo scene
+
+```js
+const tug = Prop('assets/tug-cutout.png', { ratio: 600 / 484, at: [0.3, 0.9], height: 330, from: 'left' }).goTo([0.62, 0.62])
+const apron = Scene({ photo: 'assets/apron.jpg', mute: 0.55, horizon: 0.42 }, tug)
+slide(apron)
+```
+
+[A baggage tug](tug) drives into a real airport photo, standing on its ground, and [drives off toward the planes](tug.goTo), smaller as it goes.
+
 ## p-cutout Cutout
 
 ```js
@@ -516,3 +584,166 @@ slide(Column(engine, label))
 ```
 
 [A cutout](engine): [one thing from a photo](label), on nothing, placed like a drawing.
+
+## p-photo-title Text on a photo
+
+```js
+const cow = Actor('assets/cow-cutout.png', { ratio: 400 / 380, at: [0.78, 0.95], height: 520 })
+const title = Text('A Summer Pasture', { size: 'h1' })
+slide(Scene({ photo: 'assets/pasture.jpg', mute: 0.6, drift: 0 }, cow, title))
+```
+
+[A summer pasture](title), with [a cow](cow) standing in it: words in a photo scene sit on a slab of the slide's color, so they read on any photo.
+
+## p-name-tag Name tag
+
+```js
+const cow = Actor('assets/cow-cutout.png', { ratio: 400 / 380, at: [0.5, 0.95], height: 620, tag: ['Daisy', 'in a summer pasture'] })
+slide(Scene({ photo: 'assets/pasture.jpg', mute: 0.6, drift: 0 }, cow))
+```
+
+This is [a cow](cow), and her tag says [who she is](cow.tag).
+
+## p-photo-chart A chart of cutouts on a photo
+
+```js
+const tug = Labeled('Pushback', Cutout('assets/tug-cutout.png', { ratio: 600 / 484 })), engine = Labeled('Engine start', Cutout('assets/engine-cutout.png', { ratio: 1.92 }))
+slide(Scene({ photo: 'assets/apron.jpg', mute: 0.6, drift: 0 }), Flow([[tug, engine, 'then']]))
+```
+
+[A tug pushes the plane back](tug), [then](tug->engine) [the engine starts](engine): cutouts where the drawings go, bare on the photo, with bold arrows and words on slabs.
+
+## p-person Person
+
+```js
+const sam = Person({ at: [0.5, 0.92], height: 560, from: 'left' }).turn().wave()
+slide(Scene(Layer('mountains', { depth: 0.2 }), sam))
+```
+
+[Sam walks in](sam), [turns to face us](sam.turn), and [waves](sam.wave).
+
+## p-dog Dog
+
+```js
+const rex = Dog({ at: [0.5, 0.95], feet: 2, from: 'left' }).wag()
+slide(Scene('park', rex))
+```
+
+[A dog trots in](rex) and [wags its tail](rex.wag).
+
+## p-cat Cat
+
+```js
+const tom = Cat({ at: [0.55, 0.95], from: 'left' }).sit().flick()
+slide(Scene({ perFoot: 220 }, 'park', tom))
+```
+
+[A cat stalks in](tom), [sits down](tom.sit), and [flicks its tail](tom.flick). A cat is a foot tall, so the scene frames close (perFoot) to show it.
+
+## p-cow Cow
+
+```js
+const daisy = Cow({ at: [0.3, 0.92] }).goTo([0.6, 0.92]).graze().moo()
+slide(Scene('farm-fields', daisy))
+```
+
+[A cow](daisy) [plods across the field](daisy.goTo), [puts her head down to graze](daisy.graze), and [moos](daisy.moo).
+
+## p-crowd Crowd
+
+```js
+const crowd = Crowd({ count: 10, band: [0.58, 0.84], clear: [0.86, 0.96], seed: 3 })
+const sam = Person({ at: [0.5, 0.92], feet: 5.75 }).turn().wave()
+slide(Scene('city-street', crowd, sam))
+```
+
+[Sam](sam) stands on a busy street as [people bustle past](crowd) behind him, [turns to us](sam.turn) and [waves](sam.wave).
+
+## p-areas Flow areas
+
+```js
+const web = Labeled('web', Part('server', { size: 's' })), worker = Labeled('worker', Part('gear', { size: 's' }))
+const pg = Labeled('postgres', Part('database', { size: 's' })), redis = Labeled('redis', Part('database', { size: 's' }))
+slide(Flow([[web, pg], [worker, redis]], { areas: [['Cloud', web, worker, pg, redis], ['Machine 1', web, worker], ['Machine 2', pg, redis]] }))
+```
+
+The [web server](web) and [worker](worker) run on one machine, and [postgres](pg) and [redis](redis) on another, all in one cloud. Areas draw a box around nodes: a folder, a machine, a system's boundary. A map of a repo's real imports is drawn this way too, each folder an area.
+
+## p-classes Class diagram
+
+```js
+const db = Schema([
+  { name: 'Payment', fields: ['amount', 'status'], methods: ['charge()', 'refund()'], color: 'blue' },
+  { name: 'CardPayment', fields: ['last4'], methods: ['charge()'], color: 'green' },
+  { name: 'Invoice', fields: ['due'], methods: ['total()'], color: 'yellow' }],
+  { keys: [['CardPayment', 'Payment', 'is a'], ['Invoice', 'Payment', 'pays']] })
+slide(db)
+```
+
+A [payment](db.payment) can [charge](db.payment.charge). A [card payment](db.cardpayment) is a kind of payment, and an [invoice](db.invoice) is paid by one.
+
+## p-activity Activity diagram
+
+```js
+const start = State('', { shape: 'start' }), charge = State('Charge the card'), declined = State('Declined?', { shape: 'decision' })
+const retry = State('Retry'), receipt = State('Send receipt'), end = State('', { shape: 'end' })
+slide(Flow([[start, charge], [charge, declined], [declined, retry, 'yes'], [declined, receipt, 'no'], [retry, charge], [receipt, end]], { direction: 'down' }))
+```
+
+We [charge the card](charge). [If it's declined](declined), we [retry](retry). If not, we [send a receipt](receipt), and [we're done](end).
+
+## p-commits Commit graph
+
+```js
+const log = Timeline([
+  { what: 'charge cards', when: 'a1f3c', branch: 'main' }, { what: 'fix typo', when: '9be02', branch: 'main' },
+  { what: 'retry on 503', when: '4c7d1', branch: 'retry' }, { what: 'add backoff', when: '07b9e', branch: 'retry' },
+  { what: 'merge retry', when: 'f2c40', branch: 'main', merge: 'retry' }], { down: true })
+slide(log)
+```
+
+On main, we [charged cards](log.charge-cards). A branch [retried on a 503](log.retry-on-503) and [added backoff](log.add-backoff), and was [merged back](log.merge-retry).
+
+## p-usecase Use case diagram
+
+```js
+const customer = Labeled('Customer', Part('person', { size: 's' })), support = Labeled('Support', Part('person', { size: 's' }))
+const pay = State('Pay for order'), coupon = State('Apply coupon'), refund = State('Refund')
+slide(Flow([[customer, pay], [customer, coupon], [support, refund]], { areas: [['Checkout', pay, coupon, refund]] }))
+```
+
+A [customer](customer) can [pay for an order](pay) or [apply a coupon](coupon), and [support](support) can [refund](refund) one, all inside checkout.
+
+## p-components Component diagram
+
+```js
+const web = Labeled('Web app', Part('browser', { size: 's' })), billing = Labeled('Billing', Part('server', { size: 's' }))
+const bank = Labeled('Bank', Part('server', { size: 's' })), db = Labeled('Database', Part('database', { size: 's' }))
+slide(Flow([[web, billing, 'pay()'], [billing, bank, 'charge()'], [billing, db, 'save()']]))
+```
+
+The [web app](web) [calls pay](web->billing) on [billing](billing), which [charges the bank](billing->bank) and [saves to the database](billing->db).
+
+## p-swimlanes Swimlanes
+
+```js
+const pays = State('Pays'), charge = State('Charge card'), approve = State('Approve?', { shape: 'decision' })
+const retry = State('Retry'), approved = State('Approved'), receipt = State('Gets receipt')
+slide(Flow([[pays, charge], [charge, approve], [approve, retry, 'declined'], [retry, approve], [approve, approved], [approved, receipt]],
+  { direction: 'down', lanes: [['Customer', pays, receipt], ['Billing', charge, retry], ['Bank', approve, approved]] }))
+```
+
+The [customer pays](pays), [billing charges the card](charge), and [the bank decides](approve). If it's declined, billing [retries](retry). Once it's [approved](approved), the customer [gets a receipt](receipt).
+
+## p-uml-classes Class diagram, strict UML
+
+```js
+const db = Schema([
+  { name: 'Payment', stereotype: 'abstract', fields: ['amount: int', 'status: str'], methods: ['charge()', 'refund()'] },
+  { name: 'CardPayment', fields: ['last4: str'], methods: ['charge()'] },
+  { name: 'Invoice', fields: ['due: date'], methods: ['total()'] }],
+  { uml: true, keys: [['CardPayment', 'Payment', 'is a'], ['Invoice', 'Payment', 'pays']] })
+slide(db)
+```
+
+The same classes in strict UML: a [payment](db.payment) is abstract, a [card payment](db.cardpayment) is one, and an [invoice](db.invoice) is paid by one.
