@@ -54,6 +54,7 @@ Generated from `brand/specimens/video.md` by `scripts/design_system.js`. The ful
 | `p-callout` | A callout |
 | `p-definition` | A definition |
 | `p-qa` | A question and its answer |
+| `p-cutout` | Cutout |
 
 ## f-trace Form: trace
 
@@ -506,3 +507,12 @@ slide(Column(q, a))
 ```
 
 [Why engine two first](q)? [Its pump runs the brakes](a).
+
+## p-cutout Cutout
+
+```js
+const engine = Cutout('assets/engine-cutout.png', { size: 'l', ratio: 3 / 2, tilt: -3 }), label = Text('a jet engine, cut from a photo', { size: 'h3' })
+slide(Column(engine, label))
+```
+
+[A cutout](engine): [one thing from a photo](label), on nothing, placed like a drawing.

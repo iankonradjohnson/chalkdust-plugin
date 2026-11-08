@@ -317,6 +317,12 @@ A real image from assets/, like a screenshot: Image('assets/player.jpg', { size,
 
 Options: `size`, `link`, `ratio`, `alt`, `enter`.
 
+### `Cutout(src, options)`
+
+One thing cut from a photo, on a transparent background, placed like a drawing: Cutout('assets/engine-cutout.png', { size, ratio, tilt }).
+
+Options: `tilt`, `size`, `link`, `ratio`, `alt`, `enter`.
+
 ### `Arrow(options)`
 
 Connects the glyph before it to the glyph after it, from edge to edge. thin, bold or heavy; dashed; filled, open or no head; both ways.
