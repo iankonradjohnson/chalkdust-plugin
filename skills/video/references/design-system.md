@@ -552,19 +552,19 @@ One of the explaining forms, as a glyph. It fills the stage, and its slide's cut
 
 Scenery for a story slide: layers, back to front, that drift at different speeds behind everything else. photo: 'assets/hangar.jpg' puts a real photo behind them, covering the stage, muted toward the slide's color (mute, 0 to 1, 0.55 unless said), so cutouts and drawings in front of it read. The way the explainers studied set a real place (Ian, 2026-11-07: "a photograph as the background ... slightly muted, and then put the cutouts"). A backdrop's name, Scene('forest'), stacks its far, mid and near sheets for parallax; Layers and Actors after it stand in front. A photo scene takes words too, Scene({ photo }, walt, Text('The Happiest Place')): a title, our serif at h1 unless sized, on a flat slab of the slide's color a line at a time, at the top of the room beside the people, with the board's pictures laid out below it.
 
-Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `y`, `dur`, `label`.
+Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `board`, `y`, `dur`, `label`.
 
 ### `Album(...pics)`
 
 Pictures one at a time, each filling the frame on its word over the last: Album(Prop('assets/a.jpg', { ratio }), ...).
 
-Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `y`, `dur`, `label`.
+Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `board`, `y`, `dur`, `label`.
 
 ### `Filmstrip(...pics)`
 
 Pictures in a row along a line, each labelled, the camera gliding to each on its word: Filmstrip(Prop('assets/a.jpg', { ratio, label: '1922' }), ...).
 
-Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `y`, `dur`, `label`.
+Options: `photo`, `size`, `horizon`, `perFoot`, `feet`, `layers`, `float`, `drift`, `mute`, `album`, `ratio`, `at`, `height`, `timeline`, `x`, `board`, `y`, `dur`, `label`.
 
 ### `Actor(src, options)`
 

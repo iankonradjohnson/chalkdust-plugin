@@ -14,9 +14,15 @@ For diagrams, code and how-things-work, use the usual slides in `presets.md`. Fo
   - An amount or idea is a photo of a real object: $40 is an old wallet and a 1923 dollar bill, bankrupt is a nickel.
   - If no picture can be found, rephrase the line so it doesn't name the thing.
 - **Lots of pictures, more than feels needed, and cut out.** About a picture every 1.5 seconds, 6 to 8 per slide, building up. Cut out every person and every object (`Actor('cut:...')` for people, `Prop('cut:...')` for things: a car, a gavel, a stack of money). Frame only flat things and places: documents, posters, logos, screenshots, buildings. Ian: "I like the cutouts a lot. So if you can have more cutouts, that would be better." A cutout takes about 1.4 s on this machine, and the same photo is cut once in any video, kept in the shared library. Ian, after the first Disneyland board: the bench he sat on, his two daughters, Lillian, "all these other things you could have easily filled up with more images". List everything the script names, including the small things, and fetch them all.
-- **People big.** A person stands in front, a cutout 800–1000 px tall, cut off by the bottom of the frame: `at: [0.2, 1.1]`.
+- **People big.** A person stands in front, a cutout 800–1000 px tall, cut off by the bottom of the frame, a little in from the corner: `at: [0.24, 1.1]`.
 - **Photos only, no icons.** Our flat drawings and photos must not mix ("they should not mix"), and a photo scene refuses them.
 - **No title, no kicker.** A slide with a scene shows no title or kicker. The build hides them.
+- **Four layouts, taking turns** (Ian, 2026-11-08: "different presets, because if it's just the same preset, then that could be annoying"; he took all four as modes, A and B first). Leave people's `at` out and the board stands them by its layout:
+  - `sides` (A): two people at both sides, in from the corners, pictures between and above.
+  - `beside` (B): one person to one side, every picture beside them.
+  - `middle` (C): one person in the middle, pictures on both flanks.
+  - `hero` (D): no people, one big picture (the first named) and the rest beside it.
+  With no `board`, the build rotates each board through the layouts its people fit (one person: beside, middle, beside on the other side; none: the hero swaps sides), so boards in a row never repeat. Name one with `Scene({ photo, drift: 0, board: 'middle' }, ...)` when the slide needs it. A person given an `at` keeps it.
 - **Words go on slabs, in the scene.** When a board needs words, put them in it (Ian, 2026-11-08, picked from options A and C):
   - A title: `Scene({ photo }, walt, Text('The Happiest Place'))`. Our serif at h1, on a flat slab of the slide's color a line at a time, at the top of the room beside the people; the board lays its pictures out below it. One short line, two at most.
   - A name tag: `Actor('cut:Walt Disney 1950s', { at, height, tag: ['Walt Disney', 'founder, 1923'] })`, or just `tag: 'Walt Disney'`. A slab with a yellow edge, low across the cutout. It comes on just after the cutout, or on its word: `[Walt](walt.tag)`. Tag the people the narration names, so the viewer knows who's who.
@@ -33,7 +39,7 @@ For diagrams, code and how-things-work, use the usual slides in `presets.md`. Fo
   - `.turn()` faces the other way, toward someone it's talking about
 
   Link each one, like `[it was bankrupt](walt.shake)`.
-- **Real pixels.** A cutout is the photo's own pixels under a mask from a background-removal model running on this machine: ISNet, run with onnxruntime, about 2 seconds a person, and it never refuses a face. `cutout.py` uses it whenever `~/.chalkdust/models/isnet-general-use.onnx` and onnxruntime are installed. Run builds with the project's Python (`.venv/bin/python scripts/video.py`), which has the runtime; the system Python doesn't. Without the model, `cutout.py` falls back to a mask from `gpt-image-2`, which is coarse, punches holes in famous faces and refuses some outright.
+- **Real pixels.** A cutout is the photo's own pixels under a mask from a background-removal model running on this machine: ISNet, run with onnxruntime, about 2 seconds a person, and it never refuses a face. `cutout.py` uses it whenever `~/.chalkdust/models/isnet-general-use.onnx` and onnxruntime are installed. Run builds with the project's Python (`.venv/bin/python scripts/video.py`), which has the runtime; the system Python doesn't. It is the only way a cutout is made: without the model, `cutout.py` fails and says how to install it, and the build shows that name's plain photo instead.
 - **Never make up history.** Say only what you can source, and choose words you can stand behind.
 
 ## The album
@@ -127,11 +133,11 @@ To try again, put the name back in the cast (`find:` or `cut:` in place of the `
    - In the Disneyland test, 28 names took 8.8 s, where finding pictures by hand took 4 min 40 s.
    - For a name that comes back with none, try other words in a second run, try `photos.py find` for Openverse and the museums, or rephrase the line.
    - Look at `pictures-sheet.jpg` once before writing.
-3. **Cut out every person and object at once**, in parallel: `python3 $S/cutout.py <photo> "<what>"`. Each takes about 20–35 s, and five at once take about the same.
+3. **Cut out every person and object at once**, in parallel: `python3 $S/cutout.py <photo> "<what>"`. Each takes about 2 s with ISNet.
 4. **Write `video.md`.** One `##` slide per beat of the story, each a photo scene:
 
    ```js
-   const walt = Actor('assets/walt-cutout.png', { ratio: 354 / 978, at: [0.2, 1.1], height: 1000 }).bounce().shake()
+   const walt = Actor('assets/walt-cutout.png', { ratio: 354 / 978, at: [0.24, 1.1], height: 1000 }).bounce().shake()
    const logo = Prop('assets/laughograms.jpg', { ratio: 250 / 188, at: [0.62, 0.45], height: 300 })
    const red = Prop('assets/lrrh.jpg', { ratio: 771 / 503, at: [0.84, 0.62], height: 300 })
    slide(Scene({ photo: 'assets/kansas-city.jpg', mute: 0.6, drift: 0 }, walt, logo, red))
@@ -144,7 +150,7 @@ To try again, put the name back in the cast (`find:` or `cut:` in place of the `
 
    - `ratio` is the file's width over its height.
    - `at` is where its bottom sits, across and down the stage.
-   - People stand at the sides, about `[0.18, 1.1]` and `[0.84, 1.1]`. Give pictures no `at` or height: the board lays them out in the room between the people and in the band above their heads, splitting them so the smallest picture is as big as it can be, and nothing covers anything (Ian: "make sure that we don't have things in front of each other", and "a lot of the images were too small"). Keep people within the stage: a person's `at` is their middle, so a wide cutout at `0.17` runs off the left edge; `[0.2, 1.1]` and `[0.82, 1.1]` at about 820 tall leave the most room.
+   - People stand at the sides, moved in from the corners, about `[0.24, 1.1]` and `[0.77, 1.1]` (Ian, 2026-11-08: "too in the corner. It should be a little bit in because that way there's some room for the captions"). The board ends its pictures and name tags above the caption strip, at y 920. Give pictures no `at` or height: the board lays them out in the room between the people and in the band above their heads, splitting them so the smallest picture is as big as it can be, and nothing covers anything (Ian: "make sure that we don't have things in front of each other", and "a lot of the images were too small"). Keep people within the stage: a person's `at` is their middle, so a wide cutout at `0.17` runs off the left edge; `[0.24, 1.1]` and `[0.77, 1.1]` at about 760–820 tall leave the most room.
    - A picture the script only moves, like `[pledged](cash.pop)`, comes on at that move. Better still, name it first.
    - Each backdrop is a real place from the story, muted at 0.55–0.75. Don't use the same photo as both a backdrop and a picture on that slide.
 5. **Build and look.** Run `python3 $S/video.py <project>` (about 30 s), then `node $S/stills.mjs <project> "" 0.96`. Read the contact sheet, fix what's wrong, and serve it with `--no-open`.
